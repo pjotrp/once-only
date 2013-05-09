@@ -1,6 +1,6 @@
-# bio-once-only
+# once-only
 
-[![Build Status](https://secure.travis-ci.org/pjotrp/bioruby-once-only.png)](http://travis-ci.org/pjotrp/bioruby-once-only)
+[![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
 Full description goes here
 
@@ -9,13 +9,13 @@ Note: this software is under active development!
 ## Installation
 
 ```sh
-gem install bio-once-only
+gem install once-only
 ```
 
 ## Usage
 
 ```ruby
-require 'bio-once-only'
+require 'once-only'
 ```
 
 The API doc is online. For more code examples see the test files in
@@ -26,7 +26,7 @@ the source tree.
 Information on the source tree, documentation, examples, issues and
 how to contribute, see
 
-  http://github.com/pjotrp/bioruby-once-only
+  http://github.com/pjotrp/once-only
 
 The BioRuby community is on IRC server: irc.freenode.org, channel: #bioruby.
 
@@ -39,7 +39,7 @@ If you use this software, please cite one of
 
 ## Biogems.info
 
-This Biogem is published at (http://biogems.info/index.html#bio-once-only)
+This Biogem is published at (http://biogems.info/index.html#once-only)
 
 ## Copyright
 

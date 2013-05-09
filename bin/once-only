@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #
-# BioRuby bio-once-only Plugin BioOnceOnly
+# BioRuby once-only Plugin BioOnceOnly
 # Author:: Pjotr Prins
 # Copyright:: 2013
 
-USAGE = "Describe bio-once-only"
+USAGE = "Describe once-only"
 
 gempath = File.dirname(File.dirname(__FILE__))
 $: << File.join(gempath,'lib')
@@ -13,18 +13,18 @@ VERSION_FILENAME=File.join(gempath,'VERSION')
 version = File.new(VERSION_FILENAME).read.chomp
 
 # print banner
-print "bio-once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
+print "once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
 
 if ARGV.size == 0
   print USAGE
 end
 
-require 'bio-once-only'
+require 'once-only'
 require 'optparse'
 
 # Uncomment when using the bio-logger 
 # require 'bio-logger'
-# log = Bio::Log::LoggerPlus.new 'bio-once-only'
+# log = Bio::Log::LoggerPlus.new 'once-only'
 # log.outputters = Bio::Log::Outputter.stderr 
 # Bio::Log::CLI.logger('stderr')
 # Bio::Log::CLI.trace('info')
@@ -76,8 +76,8 @@ begin
   opts.parse!(ARGV)
 
   # Uncomment when using the bio-logger
-  # Bio::Log::CLI.configure('bio-once-only')
-  # logger = Bio::Log::LoggerPlus['bio-once-only']
+  # Bio::Log::CLI.configure('once-only')
+  # logger = Bio::Log::LoggerPlus['once-only']
   # Log parsed options and remaining arguments in ARGV
   # logger.info [options, ARGV]
 
