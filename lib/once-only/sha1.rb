@@ -83,7 +83,7 @@ module OnceOnly
       end
      
       # h.join('').hex.to_s
-      p h
+      # p h
       h.map { |n| n.to_s(16) }.join('')
     end
   end
