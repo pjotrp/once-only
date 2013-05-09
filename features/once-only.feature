@@ -14,6 +14,7 @@ Feature: Execute command line
     Given a command '/bin/cat LICENSE.txt.none'
     When I run the command the first time
     Then once-only should pass back an error
+    Then once-only should have created an error file
 
   Scenario: Executable does not exist
     Given a command '/binxx/cat LICENSE.txt'
