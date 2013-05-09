@@ -1,6 +1,8 @@
 begin
   require "digest" 
 rescue LoadError
+  $stderr.print "Native Ruby SHA1 used\n"
+  $ruby_sha1 = true
 end
 
 module OnceOnly
@@ -19,10 +21,10 @@ module OnceOnly
     end
 
     def Check::calc_hash(buf)
-      begin
-        Digest::SHA1.hexdigest(buf)
-      rescue NameError
+      if $ruby_sha1
         Sha1::sha1(buf)
+      else
+        Digest::SHA1.hexdigest(buf)
       end
     end
 
