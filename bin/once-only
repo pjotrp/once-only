@@ -4,7 +4,20 @@
 # Author:: Pjotr Prins
 # Copyright:: 2013
 
-USAGE = "once-only runs a command once only when inputs don't change!"
+USAGE =<<EOB
+
+once-only runs a command once only when inputs don't change!
+
+Usage:
+
+   --pbs opts  convert to PBS command with opts
+   --skip1     skip making a hash of the executable command
+   -v          increase verbosity
+   -q          run quietly
+
+See the README for examples
+
+EOB
 
 original_commands = ARGV.join(' ')
 
@@ -20,6 +33,7 @@ require 'once-only'
 
 if ARGV.size == 0
   print USAGE
+  exit 1
 end
 
 def exit_error errval = 1
@@ -36,6 +50,9 @@ def parse_args(args)
       when '--pbs'
         options[:pbs] = args[1]
         consume.call(args[2..-1])
+      when '--skip1'
+        options[:skip1] = true
+        consume.call(args[1..-1])
       when '-v' 
         options[:verbose] = true
         consume.call(args[1..-1])
@@ -55,6 +72,8 @@ args,options = parse_args(ARGV)
 p args,options if options[:verbose]
 command = args.join(' ')
 command_sha1 = OnceOnly::Check::calc_hash(command)
+
+args = args[1..-1] if options[:skip1]
 
 file_list = OnceOnly::Check::get_file_list(args) 
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
