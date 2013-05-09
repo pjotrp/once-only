@@ -23,7 +23,7 @@ end
 def parse_args(args)
   options = {}
 
-  consume = lambda do |args|
+  consume = lambda { |args|
        case args[0]
          when '-v' 
            options[:verbose] = true
@@ -34,7 +34,7 @@ def parse_args(args)
          else
            return args
        end
-     end
+     }
 
   return consume.call(args),options
 end
