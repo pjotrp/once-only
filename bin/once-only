@@ -54,7 +54,7 @@ end
 args,options = parse_args(ARGV)
 p args,options if options[:verbose]
 command = args.join(' ')
-command_sha1 = OnceOnly::Check::calc_sha1(command)
+command_sha1 = OnceOnly::Check::calc_hash(command)
 
 file_list = OnceOnly::Check::get_file_list(args) 
 checksums = OnceOnly::Check::calc_file_checksums(file_list)

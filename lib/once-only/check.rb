@@ -1,7 +1,7 @@
 require "digest" 
 
 module OnceOnly
-
+    
   module Check
     # filter out all names that are existing files
     def Check::get_file_list list
@@ -15,14 +15,18 @@ module OnceOnly
       }
     end
 
-    def Check::calc_sha1(buf)
-      Digest::SHA1.hexdigest(buf)
+    def Check::calc_hash(buf)
+      begin
+        Digest::SHA1.hexdigest(buf)
+      rescue
+        Sha1::sha1(buf)
+      end
     end
 
     # Create a file name out of the content of checksums
     def Check::once_filename checksums, prefix = 'once-only'
       buf = checksums.map { |entry| entry }.join("\n")
-      prefix + '-' + calc_sha1(buf) + '.txt'
+      prefix + '-' + calc_hash(buf) + '.txt'
     end
 
     def Check::write_file fn, checksums
