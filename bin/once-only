@@ -14,7 +14,7 @@ $: << File.join(gempath,'lib')
 VERSION_FILENAME=File.join(gempath,'VERSION')
 version = File.new(VERSION_FILENAME).read.chomp
 
-$stderr.print "once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
+$stderr.print "once-only #{version} (using Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
 
 require 'once-only'
 

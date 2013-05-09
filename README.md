@@ -6,7 +6,7 @@ Once-only makes a shell script run only once if the inputs don't
 change (functional style!). This is very useful when running a range of jobs on a compute
 cluster or GRID. It may even be useful in the context of webservices.
 
-Basically you give once-only a command:
+You give once-only a command:
 
 ```sh
   once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
