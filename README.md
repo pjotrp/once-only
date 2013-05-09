@@ -27,17 +27,15 @@ In combination with PBS this could be
   echo "once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
 ```
 
-Interestingly once-only comes with PBS support, which won't add a job to the queue if it
-has been executed:
+Interestingly once-only also comes with some PBS support, which won't add a job to the queue if it
+has been executed successfully:
 
 ```sh
   once-only --pbs '-k oe -d path' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-Note that once-only is written in Ruby, but you don't need to
+Note: once-only is written in Ruby, but you don't need to
 understand Ruby programming to use it! 
-
-Note: this software is under active development!
 
 ## Installation
 

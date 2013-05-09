@@ -33,6 +33,9 @@ def parse_args(args)
   consume = lambda { |args|
     return args if File.exist?(args[0])
     case args[0]
+      when '--pbs'
+        options[:pbs] = args[1]
+        consume.call(args[2..-1])
       when '-v' 
         options[:verbose] = true
         consume.call(args[1..-1])
@@ -61,16 +64,24 @@ once_only_filename = OnceOnly::Check::once_filename(checksums)
 error_filename = once_only_filename + '.err'
 
 if not File.exist?(once_only_filename)
-  $stderr.print "Running #{original_commands}\n" if not options[:quiet]
-  if not system(command)
+  $stderr.print "Running #{command}\n" if not options[:quiet]
+  if options[:pbs]
+    # --- Submit PBS job
+    pbs_command = 'echo "' + command + '"|qsub '+options[:pbs]
+    $stderr.print(pbs_command) if options[:verbose]
+    system(pbs_command)
     OnceOnly::Check::write_file(error_filename,checksums)
-    # return the exit status of the command
-    errval = $?.exitstatus
-    exit_error(errval)
+    exit_error($?.exitstatus)
   else
-    # --- Success!
-    File.unlink(error_filename) if File.exist?(error_filename)
-    OnceOnly::Check::write_file(once_only_filename,checksums)
+    # --- Run on command line
+    if not system(command)
+      OnceOnly::Check::write_file(error_filename,checksums)
+      exit_error($?.exitstatus)
+    else
+      # --- Success!
+      File.unlink(error_filename) if File.exist?(error_filename)
+      OnceOnly::Check::write_file(once_only_filename,checksums)
+    end
   end
 else
   $stderr.print "Inputs unchanged. No need to rerun '#{original_commands}'!\n" if not options[:quiet]
