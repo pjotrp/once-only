@@ -1,3 +1,7 @@
+begin
+  require "digest" 
+rescue LoadError
+end
 
 module OnceOnly
     
@@ -16,9 +20,8 @@ module OnceOnly
 
     def Check::calc_hash(buf)
       begin
-        require "digest" 
         Digest::SHA1.hexdigest(buf)
-      rescue
+      rescue NameError
         Sha1::sha1(buf)
       end
     end
