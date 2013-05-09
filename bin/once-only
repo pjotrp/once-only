@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #
-# BioRuby once-only Plugin BioOnceOnly
+# Once-only  Run applications once with the same inputs
 # Author:: Pjotr Prins
 # Copyright:: 2013
 
-USAGE = "Describe once-only"
+USAGE = "once-only runs a command once only when inputs don't change!"
 
 gempath = File.dirname(File.dirname(__FILE__))
 $: << File.join(gempath,'lib')
@@ -81,7 +81,14 @@ begin
   # Log parsed options and remaining arguments in ARGV
   # logger.info [options, ARGV]
 
-  # TODO: your code here
+  checksums = OnceOnly::Check::calc_checksums(ARGV)
+  p checksums
+
+  if not system(ARGV.join(' '))
+    # return the exit status of the command
+    exit $?.exitstatus
+  end
+
   # use options for your logic
 rescue OptionParser::InvalidOption => e
   options[:invalid_argument] = e.message
