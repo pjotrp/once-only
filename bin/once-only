@@ -6,6 +6,8 @@
 
 USAGE = "once-only runs a command once only when inputs don't change!"
 
+original_commands = ARGV.join(' ')
+
 gempath = File.dirname(File.dirname(__FILE__))
 $: << File.join(gempath,'lib')
 
@@ -13,7 +15,7 @@ VERSION_FILENAME=File.join(gempath,'VERSION')
 version = File.new(VERSION_FILENAME).read.chomp
 
 # print banner
-print "once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
+$stderr.print "once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
 
 if ARGV.size == 0
   print USAGE
@@ -82,11 +84,24 @@ begin
   # logger.info [options, ARGV]
 
   checksums = OnceOnly::Check::calc_checksums(ARGV)
-  p checksums
+  once_only_filename = OnceOnly::Check::once_filename(checksums)
+  error_filename = once_only_filename + '.err'
 
-  if not system(ARGV.join(' '))
-    # return the exit status of the command
-    exit $?.exitstatus
+  if not File.exist?(once_only_filename)
+    $stderr.print "Running #{original_commands}\n"
+    if not system(ARGV.join(' '))
+      File.open(error_filename,'w')
+      # return the exit status of the command
+      exit $?.exitstatus
+    else
+      # --- Success!
+      File.unlink(error_filename) if File.exist?(error_filename)
+      File.open(once_only_filename,'w') { |f|
+        checksums.each { |items| f.print items[0],"\t",items[1],"\n" }
+      }
+    end
+  else
+    $stderr.print "Inputs unchanged. No need to rerun '#{original_commands}'!\n"
   end
 
   # use options for your logic
