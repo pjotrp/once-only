@@ -1,4 +1,3 @@
-require "digest" 
 
 module OnceOnly
     
@@ -17,6 +16,7 @@ module OnceOnly
 
     def Check::calc_hash(buf)
       begin
+        require "digest" 
         Digest::SHA1.hexdigest(buf)
       rescue
         Sha1::sha1(buf)
