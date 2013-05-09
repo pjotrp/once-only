@@ -1,7 +1,8 @@
 begin
   require "digest" 
+  Digest::SHA1.hexdigest('test')
 rescue LoadError
-  $stderr.print "Native Ruby SHA1 used\n"
+  $stderr.print "Using native Ruby SHA1 (slow)\n"
   $ruby_sha1 = true
 end
 
