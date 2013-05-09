@@ -16,6 +16,8 @@ version = File.new(VERSION_FILENAME).read.chomp
 
 $stderr.print "once-only #{version} (biogem Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
 
+require 'once-only'
+
 if ARGV.size == 0
   print USAGE
 end
@@ -49,9 +51,8 @@ end
 args,options = parse_args(ARGV)
 p args,options if options[:verbose]
 
-require 'once-only'
-
-checksums = OnceOnly::Check::calc_checksums(args)
+file_list = OnceOnly::Check::get_file_list(args)
+checksums = OnceOnly::Check::calc_checksums(file_list)
 once_only_filename = OnceOnly::Check::once_filename(checksums)
 error_filename = once_only_filename + '.err'
 
