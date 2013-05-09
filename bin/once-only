@@ -50,27 +50,27 @@ end
 
 args,options = parse_args(ARGV)
 p args,options if options[:verbose]
+command = args.join(' ')
+command_sha1 = OnceOnly::Check::calc_sha1(command)
 
-file_list = OnceOnly::Check::get_file_list(args)
-checksums = OnceOnly::Check::calc_checksums(file_list)
+file_list = OnceOnly::Check::get_file_list(args) 
+checksums = OnceOnly::Check::calc_file_checksums(file_list)
+checksums.push ['SHA1',command_sha1,command]
+
 once_only_filename = OnceOnly::Check::once_filename(checksums)
 error_filename = once_only_filename + '.err'
 
 if not File.exist?(once_only_filename)
   $stderr.print "Running #{original_commands}\n" if not options[:quiet]
-  if not system(ARGV.join(' '))
-    File.open(error_filename,'w') { |f|
-      checksums.each { |items| f.print items[0],"\t",items[1],"\n" }
-    }
+  if not system(command)
+    OnceOnly::Check::write_file(error_filename,checksums)
     # return the exit status of the command
     errval = $?.exitstatus
     exit_error(errval)
   else
     # --- Success!
     File.unlink(error_filename) if File.exist?(error_filename)
-    File.open(once_only_filename,'w') { |f|
-      checksums.each { |items| f.print items[0],"\t",items[1],"\n" }
-    }
+    OnceOnly::Check::write_file(once_only_filename,checksums)
   end
 else
   $stderr.print "Inputs unchanged. No need to rerun '#{original_commands}'!\n" if not options[:quiet]

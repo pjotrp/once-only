@@ -3,26 +3,32 @@ require "digest"
 module OnceOnly
 
   module Check
+    # filter out all names that are existing files
     def Check::get_file_list list
-      list.map { |name|
-        if File.exist?(name)
-          name
-        else
-          nil
-      }.compact
+      list.map { |name| ( File.exist?(name) ? name : nil ) }.compact
     end
 
     # Calculate the checksums for each file in the list
-    def Check::calc_checksums list
+    def Check::calc_file_checksums list
       list.map { |fn|
-        result = `/usr/bin/md5sum #{fn}`.split
+        ['MD5'] + `/usr/bin/md5sum #{fn}`.split
       }
     end
 
-    # Create a file name out of checksums
+    def Check::calc_sha1(buf)
+      Digest::SHA1.hexdigest(buf)
+    end
+
+    # Create a file name out of the content of checksums
     def Check::once_filename checksums, prefix = 'once-only'
-      buf = checksums.map { |entry| entry[0] }.join("\n")
-      prefix + '-' + Digest::SHA1.hexdigest(buf) + '.txt'
+      buf = checksums.map { |entry| entry }.join("\n")
+      prefix + '-' + calc_sha1(buf) + '.txt'
+    end
+
+    def Check::write_file fn, checksums
+      File.open(fn,'w') { |f|
+        checksums.each { |items| f.print items[0],"\t",items[1],"\t",items[2],"\n" }
+      }
     end
   end
 

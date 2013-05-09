@@ -13,10 +13,13 @@ Basically you give once-only a command:
 ```
 
 Once-only will parse the command line for existing files and run a
-checksum on them (here bowtie, reads/e_coli_1000.fq and e_coli.map).
-This checksum is saved in the running directory. When a checksum is
-new, the command 'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is
-executed. Otherwise it is skipped. Simple! 
+checksum on them (here the binary executable 'bowtie' and data files
+reads/e_coli_1000.fq and e_coli.map).  This checksum is saved in a
+file in the running directory. When the checksum file does not exist
+the command 'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is
+executed.
+
+Otherwise execution is skipped. Simple! 
 
 In combination with PBS this could be
 
@@ -28,7 +31,7 @@ Interestingly once-only comes with PBS support, which won't add a job to the que
 has been executed:
 
 ```sh
-  once-only --pbs '-k oe' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
+  once-only --pbs '-k oe -d path' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
 Note that once-only is written in Ruby, but you don't need to
