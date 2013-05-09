@@ -2,7 +2,37 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
-Full description goes here
+Once-only makes a shell script run only once if the inputs don't
+change (functional style!). This is very useful when running a range of jobs on a compute
+cluster or GRID. It may even be useful in the context of webservices.
+
+Basically you give once-only a command:
+
+```sh
+  once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
+```
+
+Once-only will parse the command line for existing files and run a
+checksum on them (here bowtie, reads/e_coli_1000.fq and e_coli.map).
+This checksum is saved in the running directory. When a checksum is
+new, the command 'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is
+executed. Otherwise it is skipped. Simple! 
+
+In combination with PBS this could be
+
+```sh
+  echo "once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
+```
+
+Interestingly once-only comes with PBS support, which won't add a job to the queue if it
+has been executed:
+
+```sh
+  once-only --pbs '-k oe' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
+```
+
+Note that once-only is written in Ruby, but you don't need to
+understand Ruby programming to use it! 
 
 Note: this software is under active development!
 
@@ -12,14 +42,18 @@ Note: this software is under active development!
 gem install once-only
 ```
 
-## Usage
+## Usage (command line)
+
+## API
+
+Once-only also has a programmers API for Ruby.
 
 ```ruby
 require 'once-only'
 ```
 
 The API doc is online. For more code examples see the test files in
-the source tree.
+the source tree (NYI).
         
 ## Project home page
 
@@ -28,13 +62,10 @@ how to contribute, see
 
   http://github.com/pjotrp/once-only
 
-The BioRuby community is on IRC server: irc.freenode.org, channel: #bioruby.
-
 ## Cite
 
-If you use this software, please cite one of
+If you use this software, please cite 
   
-* [BioRuby: bioinformatics software for the Ruby programming language](http://dx.doi.org/10.1093/bioinformatics/btq475)
 * [Biogem: an effective tool-based approach for scaling up open source software development in bioinformatics](http://dx.doi.org/10.1093/bioinformatics/bts080)
 
 ## Biogems.info
