@@ -79,7 +79,21 @@ If you want to skip scanning the executable file (useful in heterogenous environ
 such as the GRID) use the --skip-exe switch:
 
 ```sh
-echo "once-only --skip-exe bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
+once-only --skip-exe muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+```
+
+where only aa.fa is the scanned input file in the first round. To prevent the second run
+of once-only to include the output files (out-alignment.fa, first.ph and tree.ph) you
+can specify them the second round on the command line as
+
+```sh
+once-only --skip-exe --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+```
+
+a regular expression on file names may be the nicer option
+
+```sh
+once-only --skip-exe --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 ## API
