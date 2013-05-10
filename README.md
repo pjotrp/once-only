@@ -89,13 +89,13 @@ once-only --skip-exe muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tre
 
 where only aa.fa is the scanned input file in the first round. To prevent the second run
 of once-only to include the output files (out-alignment.fa, first.ph and tree.ph) you
-can specify them the second round on the command line as
+can specify them the first round on the command line as
 
 ```sh
-once-only --skip-exe --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
-a regular expression on file names may be the nicer option
+a regular expression on output filenames may be the nicer option
 
 ```sh
 once-only --skip-exe --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
