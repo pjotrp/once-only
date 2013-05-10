@@ -34,10 +34,30 @@ has been executed successfully:
   once-only --pbs '-k oe -d path' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-Note: once-only is written in Ruby, but you don't need to
-understand Ruby programming to use it! 
+The PBS job will be named and identified according to the Hash value.
+This can be used to query PBS and clean up based on queued jobs.
+
+The file once-only writes contains a list of the input files with
+their MD5 finger print values. E.g. on
+
+
+```sh
+./bin/once-only -v ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv 
+cat bio-table-25e51f9297b43b5dacf687b4158f0b79e69c6817.txt 
+    MD5     53bcceee564c47cebff8160ab734313f        ../bioruby-table/bin/bio-table
+    MD5     9868b63e3624023a176c29bb80eb54f5        ../bioruby-table/test/data/input/table1.csv
+    SHA1    46ae0f4af8c2566185954bb07d4eeb18c1867077        ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv
+```
+
+This list can be used to distinguish
+between input and output files after completion of the program.
 
 ## Installation
+
+Note: once-only is written in Ruby, but you don't need to understand
+Ruby programming to use it! 
+
+With Ruby 1.9 or later on your system you can run
 
 ```sh
 gem install once-only
