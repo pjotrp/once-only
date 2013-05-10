@@ -101,6 +101,18 @@ a regular expression on output filenames may be the nicer option
 once-only --skip-exe --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
+Another option is to change directory before executing the script
+
+```sh
+once-only -d run001 --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+```
+
+which is useful with PBS and in scripted environments.
+
+### PBS
+
+Once-only has PBS support built-in.
+
 ## API
 
 Once-only also has a programmers API for Ruby.

@@ -10,6 +10,7 @@ once-only runs a command once only when inputs don't change!
 
 Usage:
 
+   -d path         change to directory before executing
    --pbs opts      convert to PBS command with opts
    --skip-exe      skip making a hash of the executable command
    --skip file     skip making a hash of the named file (multiple allowed)
@@ -51,6 +52,9 @@ def parse_args(args)
   consume = lambda { |args|
     return args if File.exist?(args[0])
     case args[0]
+      when '-d'
+        options[:dir] = File.expand_path(args[1])
+        consume.call(args[2..-1])
       when '--pbs'
         options[:pbs] = args[1]
         consume.call(args[2..-1])
@@ -92,6 +96,12 @@ p args,options if options[:verbose]
 command = args.join(' ')
 command_sha1 = OnceOnly::Check::calc_hash(command)
 
+# change dir
+if options[:dir]
+  $stderr.print "Changing dir to ",options[:dir],"\n" if !options[:quiet]
+  Dir.chdir options[:dir] 
+end
+
 executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
@@ -111,6 +121,7 @@ if options[:force] or not File.exist?(once_only_filename)
   if options[:pbs]
     # --- Submit PBS job
     pbs_command = 'echo "' + command + '"|qsub '+options[:pbs]
+    pbs_command += '-d '+options[:dir] if options[:dir]
     $stderr.print(pbs_command) if options[:verbose]
     if !options[:dry_run]
       if not system(pbs_command) 
