@@ -14,6 +14,11 @@ module OnceOnly
       list.map { |name| ( File.exist?(name) ? name : nil ) }.compact
     end
 
+    # filter out all names accoding to filters
+    def Check::filter_file_list list, regex
+      list.map { |name| ( name =~ /#{regex}/ ? nil : name ) }.compact
+    end
+
     # Calculate the checksums for each file in the list
     def Check::calc_file_checksums list
       list.map { |fn|

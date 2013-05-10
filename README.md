@@ -52,7 +52,12 @@ cat bio-table-25e51f9297b43b5dacf687b4158f0b79e69c6817.txt
 ```
 
 This list can be used to distinguish
-between input and output files after completion of the program.
+between input and output files after completion of the program. To check the validity of 
+input files you could run md5sum on the one-only has file, for example
+
+```sh
+grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS = "[ \t\n]+" }{ print $2,"",$3 }'|md5sum -c
+```
 
 ## Installation
 
