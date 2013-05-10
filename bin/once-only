@@ -14,6 +14,7 @@ Usage:
    --skip-exe  skip making a hash of the executable command
    -v          increase verbosity
    -q          run quietly
+   --dry-run   do not execute command
 
 See the README for examples
 
@@ -53,11 +54,17 @@ def parse_args(args)
       when '--skip-exe'
         options[:skip1] = true
         consume.call(args[1..-1])
+      when '-h', '--help'
+        print USAGE
+        exit 1
       when '-v' 
         options[:verbose] = true
         consume.call(args[1..-1])
       when '-q' 
         options[:quiet] = true
+        consume.call(args[1..-1])
+      when '--dry-run' 
+        options[:dry_run] = true
         consume.call(args[1..-1])
       else
         $stderr.print "Can not parse arguments",args
@@ -89,18 +96,23 @@ if not File.exist?(once_only_filename)
     # --- Submit PBS job
     pbs_command = 'echo "' + command + '"|qsub '+options[:pbs]
     $stderr.print(pbs_command) if options[:verbose]
-    system(pbs_command)
-    OnceOnly::Check::write_file(error_filename,checksums)
-    exit_error($?.exitstatus)
+    if !options[:dry_run]
+      if not system(pbs_command) 
+        OnceOnly::Check::write_file(error_filename,checksums)
+        exit_error($?.exitstatus)
+      end
+    end
   else
     # --- Run on command line
-    if not system(command)
-      OnceOnly::Check::write_file(error_filename,checksums)
-      exit_error($?.exitstatus)
-    else
-      # --- Success!
-      File.unlink(error_filename) if File.exist?(error_filename)
-      OnceOnly::Check::write_file(once_only_filename,checksums)
+    if !options[:dry_run]
+      if not system(command)
+        OnceOnly::Check::write_file(error_filename,checksums)
+        exit_error($?.exitstatus)
+      else
+        # --- Success!
+        File.unlink(error_filename) if File.exist?(error_filename)
+        OnceOnly::Check::write_file(once_only_filename,checksums)
+     end
     end
   end
 else

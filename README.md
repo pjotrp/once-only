@@ -43,10 +43,12 @@ their MD5 finger print values. E.g. on
 
 ```sh
 ./bin/once-only -v ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv 
+
 cat bio-table-25e51f9297b43b5dacf687b4158f0b79e69c6817.txt 
-    MD5     53bcceee564c47cebff8160ab734313f        ../bioruby-table/bin/bio-table
-    MD5     9868b63e3624023a176c29bb80eb54f5        ../bioruby-table/test/data/input/table1.csv
-    SHA1    46ae0f4af8c2566185954bb07d4eeb18c1867077        ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv
+
+  MD5     53bcceee564c47cebff8160ab734313f          ../bioruby-table/bin/bio-table
+  MD5     9868b63e3624023a176c29bb80eb54f5          ../bioruby-table/test/data/input/table1.csv
+  SHA1    46ae0f4af8c2566185954bb07d4eeb18c1867077  ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv
 ```
 
 This list can be used to distinguish
@@ -64,6 +66,21 @@ gem install once-only
 ```
 
 ## Usage (command line)
+
+To get a full list of command options 
+
+```sh
+./bin/once-only --help
+```
+
+Useful switches can be -v (verbose) and -q (quiet).
+
+If you want to skip scanning the executable file (useful in heterogenous environments, 
+such as the GRID) use the --skip-exe switch:
+
+```sh
+echo "once-only --skip-exe bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
+```
 
 ## API
 
