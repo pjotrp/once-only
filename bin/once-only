@@ -123,7 +123,7 @@ if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
   if options[:pbs]
     # --- Submit PBS job
-    pbs_command = 'echo "' + command + "\"|qsub -N #{job_name} "+options[:pbs]
+    pbs_command = 'echo "' + command + "\"|qsub -N #{job_name} "+options[:pbs]+' '
     pbs_command += '-d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
  
     $stderr.print(pbs_command,"\n") if options[:verbose]
