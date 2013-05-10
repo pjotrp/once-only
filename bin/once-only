@@ -11,7 +11,7 @@ once-only runs a command once only when inputs don't change!
 Usage:
 
    --pbs opts  convert to PBS command with opts
-   --skip1     skip making a hash of the executable command
+   --skip-exe  skip making a hash of the executable command
    -v          increase verbosity
    -q          run quietly
 
@@ -50,7 +50,7 @@ def parse_args(args)
       when '--pbs'
         options[:pbs] = args[1]
         consume.call(args[2..-1])
-      when '--skip1'
+      when '--skip-exe'
         options[:skip1] = true
         consume.call(args[1..-1])
       when '-v' 
