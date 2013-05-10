@@ -116,13 +116,17 @@ checksums.push ['SHA1',command_sha1,command]
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 error_filename = once_only_filename + '.err'
 
+job_name = (File.basename(Dir.pwd)[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
+$stderr.print "Job name ",job_name,"\n" if options[:verbose]
+
 if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
   if options[:pbs]
     # --- Submit PBS job
-    pbs_command = 'echo "' + command + '"|qsub '+options[:pbs]
-    pbs_command += '-d '+options[:dir] if options[:dir]
-    $stderr.print(pbs_command) if options[:verbose]
+    pbs_command = 'echo "' + command + "\"|qsub -N #{job_name} "+options[:pbs]
+    pbs_command += '-d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+ 
+    $stderr.print(pbs_command,"\n") if options[:verbose]
     if !options[:dry_run]
       if not system(pbs_command) 
         OnceOnly::Check::write_file(error_filename,checksums)
