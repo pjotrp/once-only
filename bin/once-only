@@ -59,8 +59,9 @@ def parse_args(args)
         options[:dir] = File.expand_path(args[1])
         consume.call(args[2..-1])
       when '--pbs'
-        if args[1] =~ /^['"]/ # optional argument
+        if args[1] =~ /\s+/ # optional argument
           options[:pbs] = args[1]
+          p 'HERE',options
           consume.call(args[2..-1])
         else
           options[:pbs] = "''"

@@ -62,7 +62,7 @@ module OnceOnly
     # Drop --pbs and optional argument from list
     def Check::drop_pbs_option(list)
       is_part_of_pbs_arg = lambda { |p1, p2|
-        (p1 == '--pbs' and p2 =~ /^['"]/) or p2 == '--pbs'
+        (p1 == '--pbs' and p2 =~ /\s+/) or p2 == '--pbs'
       }
       a = [ list[0] ]
       list.each_cons(2) { |pair| a << pair[1] if not is_part_of_pbs_arg.call(pair[0],pair[1])}
