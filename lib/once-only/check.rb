@@ -69,6 +69,16 @@ module OnceOnly
       a
     end
 
+    # Drop -d argument from list
+    def Check::drop_dir_option(list)
+      is_part_of_arg = lambda { |p1, p2|
+        (p1 == '-d' or p2 == '-d')
+      }
+      a = [ list[0] ]
+      list.each_cons(2) { |pair| a << pair[1] if not is_part_of_arg.call(pair[0],pair[1])}
+      a
+    end
+
 
 protected
 

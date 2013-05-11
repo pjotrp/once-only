@@ -124,6 +124,7 @@ if options[:debug]
 end
 
 once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
+once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
 once_only_command = once_only_args.join(' ')
 
 command = args.join(' ')
@@ -155,7 +156,9 @@ $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
 $stderr.print "Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
-job_name = (File.basename(Dir.pwd)[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
+dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
+
+job_name = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
 $stderr.print "Job name ",job_name,"\n" if options[:verbose]
 
 if options[:force] or not File.exist?(once_only_filename)

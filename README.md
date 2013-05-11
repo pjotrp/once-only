@@ -138,25 +138,16 @@ once-only --pbs /bin/cat ~/.bashrc
 ```
 
 Will submit 'cat ~/.bashrc' to the queue. This is an interesting example, because
-both /bin/cat and ~/.bashrc may differ on the submission machine and the cluster
+both /bin/cat and ~/.bashrc files may differ on the submission machine and the cluster
 nodes. Only when both are the same you can expect once-only to run properly. In 
-this case it is wise to add
+this case it is wise to add at least
 
 ```sh
 once-only --pbs --skip-exe /bin/cat ~/.bashrc
 ```
 
-## API
+so once-only won't check the file /bin/cat.
 
-Once-only also has a programmers API for Ruby.
-
-```ruby
-require 'once-only'
-```
-
-The API doc is online. For more code examples see the test files in
-the source tree (NYI).
-        
 ## Project home page
 
 Information on the source tree, documentation, examples, issues and
