@@ -94,7 +94,8 @@ end
 args,options = parse_args(ARGV)
 p args,options if options[:verbose]
 command = args.join(' ')
-command_sha1 = OnceOnly::Check::calc_hash(command)
+command_sorted = args.sort.join(' ')
+command_sha1 = OnceOnly::Check::calc_hash(command_sorted)
 
 # change dir
 if options[:dir]
@@ -111,7 +112,7 @@ options[:filter].each { |regex|
 }
 file_list -= options[:skip]
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
-checksums.push ['SHA1',command_sha1,command]
+checksums.push ['SHA1',command_sha1,command_sorted]
 
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 error_filename = once_only_filename + '.err'
