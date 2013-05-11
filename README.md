@@ -2,24 +2,32 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
-Once-only makes a shell script run only once if the inputs don't
-change (functional style!). This is very useful when running a range of jobs on a compute
-cluster or GRID. It may even be useful in the context of webservices.
+Once-only makes a shell script run only once if the inputs don't change (in a
+functional style!). This is very useful when running a range of jobs on a
+compute cluster or GRID. It may even be useful in the context of webservices.
+Once-only makes me much more relaxed running large jobs on compute clusters! If
+I make a mistake I don't need to rerun everything again!
 
-You give once-only a command:
+Instead of running a tool or script directly, such as
+
+```sh
+  bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
+```
+
+Prepend once-only
 
 ```sh
   once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-Once-only will parse the command line for existing files and run a
-checksum on them (here the binary executable 'bowtie' and data files
-reads/e_coli_1000.fq and e_coli.map).  This checksum is saved in a
-file in the running directory. When the checksum file does not exist
-the command 'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is
-executed.
+Once-only will parse the command line for existing files and run a checksum on
+them (here the binary executable 'bowtie' and data files reads/e_coli_1000.fq
+and e_coli.map).  This checksum is saved in a file in the running directory.
+When the checksum file does not exist in the directory the command 'bowtie -t
+e_coli reads/e_coli_1000.fq e_coli.map' is executed.
 
-Otherwise execution is skipped. Simple! 
+Otherwise execution is skipped. In other words, the checksum file guarantees
+the program is only run once with the same inputs. Really simple! 
 
 In combination with PBS this could be
 
@@ -51,13 +59,18 @@ cat bio-table-25e51f9297b43b5dacf687b4158f0b79e69c6817.txt
   SHA1    46ae0f4af8c2566185954bb07d4eeb18c1867077  ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv
 ```
 
-This list can be used to distinguish
+This list can also be used to distinguish
 between input and output files after completion of the program. To check the validity of 
 input files you could run md5sum on the one-only has file, for example
 
 ```sh
 grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS = "[ \t\n]+" }{ print $2,"",$3 }'|md5sum -c
 ```
+
+Once-only is inspired by the Lisp once-only function, which wraps another function and calculates a result only once, based on the same inputs. It is also inspired by the NixOS software
+deployment system, which guarantees packages are uniquely deployed, based on the source code inputs and the configuration at compile time.
+
+Relax!
 
 ## Installation
 
