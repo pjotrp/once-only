@@ -166,8 +166,8 @@ if options[:force] or not File.exist?(once_only_filename)
   if options[:pbs]
     # --- Check if job is already queued in PBS
     qstat = `/usr/bin/qstat`
-    if qstat =~ /#{jobname}/
-      $stderr.print "Job #{jobname} already in queue!\n"
+    if qstat =~ /#{job_name}/
+      $stderr.print "Job #{job_name} already in queue!\n"
       exit 0
     end
     # --- Submit PBS job
