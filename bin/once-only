@@ -19,6 +19,7 @@ Usage:
    --skip-glob regex   skip making hashes of filenames that match the glob (multiple allowed)
    -v                  increase verbosity
    -q                  run quietly
+   --debug             give debug information
    --dry-run           do not execute command
    --force             force execute command
 
@@ -78,6 +79,9 @@ def parse_args(args)
       when '-h', '--help'
         print USAGE
         exit 1
+      when '--debug' 
+        options[:debug] = true
+        consume.call(args[1..-1])
       when '-v' 
         options[:verbose] = true
         consume.call(args[1..-1])
@@ -100,10 +104,20 @@ def parse_args(args)
 end
 
 args,options = parse_args(ARGV)
-once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV - args ))
+once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV[0..ARGV.size-args.size-1] ))
+
+if options[:debug]
+  print "Full:    "
+  p ARGV
+  print "Prefix:  "
+  p once_only_args
+  print "Postfix: "
+  p args
+  print "Options: "
+  p options   
+end
+
 once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
-p once_only_args if options[:verbose]
-p args,options   if options[:verbose]
 once_only_command = once_only_args.join(' ')
 
 command = args.join(' ')
