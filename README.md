@@ -48,7 +48,6 @@ This can be used to query PBS and clean up based on queued jobs.
 The file once-only writes contains a list of the input files with
 their MD5 finger print values. E.g. on
 
-
 ```sh
 ./bin/once-only -v ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv 
 
@@ -88,7 +87,7 @@ gem install once-only
 To get a full list of command options 
 
 ```sh
-./bin/once-only --help
+once-only --help
 ```
 
 Useful switches can be -v (verbose) and -q (quiet).
@@ -152,7 +151,7 @@ If you use this software, please cite
 
 ## Biogems.info
 
-This Biogem is published at (http://biogems.info/index.html#once-only)
+This Biogem is published at http://biogems.info/
 
 ## Copyright
 
