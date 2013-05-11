@@ -131,7 +131,13 @@ which is useful with PBS and in scripted environments.
 
 ### PBS
 
-Once-only has PBS support built-in.
+Once-only has PBS support built-in. Basically use the --pbs option:
+
+```sh
+once-only --pbs /bin/ls -l
+```
+
+Will submit 'ls -l' to the queue.
 
 ## API
 
