@@ -54,10 +54,17 @@ module OnceOnly
    
     # Put quotes around regexs and globs 
     def Check::requote list
-      a2 = [ list[0] ]
-      list.each_cons(2) { |pair| a2 << (pair[0] == '--skip-glob' or pair[0] == '--skip-regex' ? "'"+pair[1]+"'" : pair[1]) }
-      a2
+      a = [ list[0] ]
+      list.each_cons(2) { |pair| a << (pair[0] == '--skip-glob' or pair[0] == '--skip-regex' ? "'"+pair[1]+"'" : pair[1]) }
+      a
     end
+
+    def Check::drop_pbs_option(list)
+      a = [ list[0] ]
+      list.each_cons(2) { |pair| a << pair[1] if pair[0] != '--pbs' and pair[1] != '--pbs'}
+      a
+    end
+
 
 protected
 

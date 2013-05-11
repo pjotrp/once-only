@@ -101,8 +101,11 @@ end
 
 args,options = parse_args(ARGV)
 once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV - args ))
+once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
 p once_only_args if options[:verbose]
 p args,options   if options[:verbose]
+once_only_command = once_only_args.join(' ')
+
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
 command_sha1 = OnceOnly::Check::calc_hash(command_sorted)
@@ -137,7 +140,7 @@ if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
   if options[:pbs]
     # --- Submit PBS job
-    pbs_command = 'echo "' + command + "\"|qsub -N #{job_name} "+options[:pbs]+' '
+    pbs_command = 'echo "' + once_only_command + ' ' + command + "\"|qsub -N #{job_name} "+options[:pbs]+' '
     pbs_command += '-d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
  
     $stderr.print(pbs_command,"\n") if options[:verbose]
