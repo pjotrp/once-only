@@ -164,6 +164,12 @@ $stderr.print "Job name ",job_name,"\n" if options[:verbose]
 if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
   if options[:pbs]
+    # --- Check if job is already queued in PBS
+    qstat = `/usr/bin/qstat`
+    if qstat =~ /#{jobname}/
+      $stderr.print "Job #{jobname} already in queue!\n"
+      exit 0
+    end
     # --- Submit PBS job
     pbs_command = 'echo "' + once_only_command + ' ' + command + "\"|qsub -N #{job_name} "+options[:pbs]+' '
     pbs_command += '-d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
