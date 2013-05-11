@@ -17,6 +17,7 @@ Usage:
    --skip file         skip making a hash of the named file (multiple allowed)
    --skip-regex regex  skip making hashes of filenames that match the regex (multiple allowed)
    --skip-glob regex   skip making hashes of filenames that match the glob (multiple allowed)
+   --include file      include input filename for making the hashes
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -50,7 +51,7 @@ def exit_error errval = 1
 end
 
 def parse_args(args)
-  options = { :skip => [], :skip_regex => [], :skip_glob => [] }
+  options = { :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
 
   consume = lambda { |args|
     return args if File.exist?(args[0]) # reached the executable command
@@ -81,6 +82,9 @@ def parse_args(args)
         consume.call(args[2..-1])
       when '--skip-glob'
         options[:skip_glob] << args[1]
+        consume.call(args[2..-1])
+      when '--include','--in'
+        options[:include] << args[1]
         consume.call(args[2..-1])
       when '-h', '--help'
         print USAGE
@@ -147,7 +151,7 @@ options[:skip_regex].each { |regex|
 options[:skip_glob].each { |glob|
   file_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
 }
-file_list -= options[:skip]
+file_list -= options[:skip] + options[:include]
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
