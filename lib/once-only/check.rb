@@ -9,9 +9,9 @@ end
 module OnceOnly
     
   module Check
-    # filter out all names that are existing files
+    # filter out all arguments that reflect existing files
     def Check::get_file_list list
-      list.map { |name| ( File.exist?(name) ? name : nil ) }.compact
+      list.map { |arg| get_existing_filename(arg) }.compact
     end
 
     # filter out all names accoding to filters
@@ -44,6 +44,16 @@ module OnceOnly
       File.open(fn,'w') { |f|
         checksums.each { |items| f.print items[0],"\t",items[1],"\t",items[2],"\n" }
       }
+    end
+
+protected
+
+    def Check::get_existing_filename arg
+      return arg if File.exist?(arg)
+      # sometimes arguments are formed as -in=file
+      (option,filename) = arg.split(/=/)
+      return filename if filename and File.exist?(filename)
+      nil
     end
   end
 
