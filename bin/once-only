@@ -52,7 +52,7 @@ def parse_args(args)
   options = { :skip => [], :skip_regex => [], :skip_glob => [] }
 
   consume = lambda { |args|
-    return args if File.exist?(args[0])
+    return args if File.exist?(args[0]) # reached the executable command
     case args[0]
       when '-d'
         options[:dir] = File.expand_path(args[1])
@@ -100,7 +100,9 @@ def parse_args(args)
 end
 
 args,options = parse_args(ARGV)
-p args,options if options[:verbose]
+once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV - args ))
+p once_only_args if options[:verbose]
+p args,options   if options[:verbose]
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
 command_sha1 = OnceOnly::Check::calc_hash(command_sorted)
