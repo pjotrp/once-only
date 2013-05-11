@@ -19,6 +19,12 @@ module OnceOnly
       list.map { |name| ( name =~ /#{regex}/ ? nil : name ) }.compact
     end
 
+    # filter out all names accoding to glob (this is not an efficient
+    # implementation, as the glob runs for every listed file!)
+    def Check::filter_file_list_glob list, glob
+      list.map { |name| ( Dir.glob(glob).index(name) ? nil : name ) }.compact
+    end
+
     # Calculate the checksums for each file in the list
     def Check::calc_file_checksums list
       list.map { |fn|

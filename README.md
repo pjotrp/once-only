@@ -113,7 +113,15 @@ a regular expression on output filenames may be the nicer option
 once-only --skip-exe --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
-Another option is to change directory before executing the script
+or if you are more comfortable with shell style pattern matching use
+
+```sh
+once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+```
+
+For a full range of glob patterns, see this [page](http://ruby.about.com/od/beginningruby/a/dir2.htm).
+
+Another once-only command line option is to change directory before executing the script
 
 ```sh
 once-only -d run001 --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph

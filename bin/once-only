@@ -12,9 +12,11 @@ Usage:
 
    -d path             change to directory before executing
    --pbs opts          convert to PBS command with opts
-   --skip-exe          skip making a hash of the executable command
+   --skip-exe          skip making a hash of the executable command/script
+   --skip-cli          skip making a hash of full command line
    --skip file         skip making a hash of the named file (multiple allowed)
    --skip-regex regex  skip making hashes of filenames that match the regex (multiple allowed)
+   --skip-glob regex   skip making hashes of filenames that match the glob (multiple allowed)
    -v                  increase verbosity
    -q                  run quietly
    --dry-run           do not execute command
@@ -47,7 +49,7 @@ def exit_error errval = 1
 end
 
 def parse_args(args)
-  options = { :skip => [], :skip_regex => [] }
+  options = { :skip => [], :skip_regex => [], :skip_glob => [] }
 
   consume = lambda { |args|
     return args if File.exist?(args[0])
@@ -64,8 +66,14 @@ def parse_args(args)
       when '--skip-exe'
         options[:skip_exe] = true
         consume.call(args[1..-1])
+      when '--skip-cli'
+        options[:skip_cli] = true
+        consume.call(args[1..-1])
       when '--skip-regex'
         options[:skip_regex] << args[1]
+        consume.call(args[2..-1])
+      when '--skip-glob'
+        options[:skip_glob] << args[1]
         consume.call(args[2..-1])
       when '-h', '--help'
         print USAGE
@@ -110,9 +118,12 @@ file_list = OnceOnly::Check::get_file_list(args)
 options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }
+options[:skip_glob].each { |glob|
+  file_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
+}
 file_list -= options[:skip]
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
-checksums.push ['SHA1',command_sha1,command_sorted]
+checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 error_filename = once_only_filename + '.err'
