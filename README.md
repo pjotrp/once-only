@@ -37,11 +37,11 @@ In combination with PBS this could be
   echo "once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
 ```
 
-Interestingly once-only also comes with some PBS support, which won't add a job to the queue if it
+Interestingly once-only also comes with PBS support, which won't add a job to the queue if it
 has been executed successfully:
 
 ```sh
-  once-only --pbs '-k oe -d path' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
+  once-only --pbs '-k oe' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
 The PBS job will be named and identified according to the Hash value.

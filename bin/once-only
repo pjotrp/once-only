@@ -11,7 +11,7 @@ once-only runs a command once only when inputs don't change!
 Usage:
 
    -d path             change to directory before executing
-   --pbs opts          convert to PBS command with opts
+   --pbs [opts]        convert to PBS command with optional options
    --skip-exe          skip making a hash of the executable command/script
    --skip-cli          skip making a hash of full command line
    --skip file         skip making a hash of the named file (multiple allowed)
@@ -59,8 +59,13 @@ def parse_args(args)
         options[:dir] = File.expand_path(args[1])
         consume.call(args[2..-1])
       when '--pbs'
-        options[:pbs] = args[1]
-        consume.call(args[2..-1])
+        if args[1] =~ /^['"]/ # optional argument
+          options[:pbs] = args[1]
+          consume.call(args[2..-1])
+        else
+          options[:pbs] = "''"
+          consume.call(args[1..-1])
+        end
       when '--skip'
         options[:skip] << args[1]
         consume.call(args[2..-1])
