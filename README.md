@@ -4,8 +4,9 @@
 
 Relax with PBS!
 
-* A completed job does not get submitted again
-* A job already in the queue does not get submitted again
+* Computations only happen once
+* A completed job does not get submitted again to PBS
+* A job already in the queue does not get submitted again to PBS
 
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
@@ -89,6 +90,12 @@ With Ruby 1.9 or later on your system you can run
 gem install once-only
 ```
 
+### Dependencies
+
+'md5sum' is used for calculating MD5 hash values.
+
+When you are using PBS, once-only requires the 'qsub' and 'qstat' commands.
+
 ## Usage (command line)
 
 To get a full list of command options 
@@ -141,7 +148,9 @@ which is useful with PBS and in scripted environments.
 
 ### PBS
 
-Once-only has PBS support built-in. Basically use the --pbs option:
+Once-only has PBS support built-in. It only uses the 'qsub' and 'qstat' commands.
+
+Basically use the --pbs option:
 
 ```sh
 once-only --pbs /bin/cat ~/.bashrc

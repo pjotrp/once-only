@@ -151,7 +151,11 @@ options[:skip_regex].each { |regex|
 options[:skip_glob].each { |glob|
   file_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
 }
-file_list -= options[:skip] + options[:include]
+file_list -= options[:skip] 
+
+OnceOnly::Check::check_files_exist(options[:include])
+file_list += options[:include]
+
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 

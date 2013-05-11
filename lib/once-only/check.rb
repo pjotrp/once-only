@@ -14,6 +14,12 @@ module OnceOnly
       list.map { |arg| get_existing_filename(arg) }.compact
     end
 
+    def Check::check_files_exist list
+      list.each { |fn| 
+        raise "File #{fn} does not exist!" if not File.exist?(fn)
+      }
+    end
+
     # filter out all names accoding to filters
     def Check::filter_file_list list, regex
       list.map { |name| ( name =~ /#{regex}/ ? nil : name ) }.compact
