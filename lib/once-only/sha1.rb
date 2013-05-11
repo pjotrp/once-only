@@ -83,8 +83,8 @@ module OnceOnly
       end
      
       # h.join('').hex.to_s
-      # p h
-      h.map { |n| n.to_s(16) }.join('')
+      # p h p sprintf("%08X","10") -> 0000000A
+      h.map { |n| sprintf("%08x",n) }.join('')
     end
   end
 
