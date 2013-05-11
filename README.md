@@ -4,11 +4,14 @@
 
 Relax with PBS!
 
-Once-only makes a shell script run only once if the inputs don't change (in a
-functional style!). This is very useful when running a range of jobs on a
-compute cluster or GRID. It may even be useful in the context of webservices.
-Once-only makes me much more relaxed running large jobs on compute clusters! If
-I make a mistake I don't need to rerun everything again.
+* A completed job does not get submitted again
+* A job already in the queue does not get submitted again
+
+Once-only makes a program or script run only *once*, provided the inputs don't
+change (in a functional style!). This is very useful when running a range of
+jobs on a compute cluster or GRID. It may even be useful in the context of
+webservices.  Once-only makes me much more relaxed running large jobs on
+compute clusters! If I make a mistake I don't need to rerun everything again.
 
 Instead of running a tool or script directly, such as
 
@@ -22,7 +25,7 @@ Prepend once-only
   once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-Once-only will parse the command line for existing files and run a checksum on
+and once-only will parse the command line for existing files and run a checksum on
 them (here the binary executable 'bowtie' and data files reads/e_coli_1000.fq
 and e_coli.map).  This checksum is saved in a file in the running directory.
 When the checksum file does not exist in the directory the command 'bowtie -t
@@ -37,8 +40,9 @@ In combination with PBS this could be
   echo "once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map" |qsub -k oe -d path
 ```
 
-Interestingly once-only also comes with PBS support, which won't add a job to the queue if it
-has been executed successfully:
+Interestingly once-only also comes with PBS support, which won't add a job to
+the queue if it is already in the queue, or if it has been executed
+successfully:
 
 ```sh
   once-only --pbs '-k oe' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
@@ -60,16 +64,19 @@ cat bio-table-25e51f9297b43b5dacf687b4158f0b79e69c6817.txt
   SHA1    46ae0f4af8c2566185954bb07d4eeb18c1867077  ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv
 ```
 
-This list can also be used to distinguish
-between input and output files after completion of the program. To check the validity of 
-input files you could run md5sum on the one-only has file, for example
+This list can also be used to distinguish between input and output files after
+completion of the program. To check the validity of input files you could run
+md5sum on the one-only has file, for example
 
 ```sh
 grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS = "[ \t\n]+" }{ print $2,"",$3 }'|md5sum -c
 ```
 
-Once-only is inspired by the Lisp once-only function, which wraps another function and calculates a result only once, based on the same inputs. It is also inspired by the NixOS software
-deployment system, which guarantees packages are uniquely deployed, based on the source code inputs and the configuration at compile time.
+Once-only is inspired by the Lisp once-only function, which wraps another
+function and calculates a result only once, based on the same inputs. It is
+also inspired by the NixOS software deployment system, which guarantees
+packages are uniquely deployed, based on the source code inputs and the
+configuration at compile time.
 
 ## Installation
 
@@ -140,7 +147,10 @@ Once-only has PBS support built-in. Basically use the --pbs option:
 once-only --pbs /bin/cat ~/.bashrc
 ```
 
-Will submit 'cat ~/.bashrc' to the queue. This is an interesting example, because
+Will submit 'cat ~/.bashrc' to the queue. If the job is already in the queue it 
+won't be submitted, thanks to the unique job ID once-only generates.
+
+In fact, this is an interesting example, because
 both /bin/cat and ~/.bashrc files may differ on the submission machine and the cluster
 nodes. Only when both are the same you can expect once-only to run properly. In 
 this case it is wise to add at least
