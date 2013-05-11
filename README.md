@@ -134,10 +134,17 @@ which is useful with PBS and in scripted environments.
 Once-only has PBS support built-in. Basically use the --pbs option:
 
 ```sh
-once-only --pbs /bin/ls -l
+once-only --pbs /bin/cat ~/.bashrc
 ```
 
-Will submit 'ls -l' to the queue.
+Will submit 'cat ~/.bashrc' to the queue. This is an interesting example, because
+both /bin/cat and ~/.bashrc may differ on the submission machine and the cluster
+nodes. Only when both are the same you can expect once-only to run properly. In 
+this case it is wise to add
+
+```sh
+once-only --pbs --skip-exe /bin/cat ~/.bashrc
+```
 
 ## API
 

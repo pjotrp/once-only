@@ -153,6 +153,7 @@ checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
+$stderr.print "Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
 job_name = (File.basename(Dir.pwd)[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
 $stderr.print "Job name ",job_name,"\n" if options[:verbose]
