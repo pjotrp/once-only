@@ -110,13 +110,13 @@ once-only --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.f
 a regular expression on output filenames may be the nicer option
 
 ```sh
-once-only --skip-exe --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip-exe --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 Another option is to change directory before executing the script
 
 ```sh
-once-only -d run001 --filter 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only -d run001 --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 which is useful with PBS and in scripted environments.

@@ -10,15 +10,15 @@ once-only runs a command once only when inputs don't change!
 
 Usage:
 
-   -d path         change to directory before executing
-   --pbs opts      convert to PBS command with opts
-   --skip-exe      skip making a hash of the executable command
-   --skip file     skip making a hash of the named file (multiple allowed)
-   --filter regex  skip making hashes of filenames that match the regex (multiple allowed)
-   -v              increase verbosity
-   -q              run quietly
-   --dry-run       do not execute command
-   --force         force execute command
+   -d path             change to directory before executing
+   --pbs opts          convert to PBS command with opts
+   --skip-exe          skip making a hash of the executable command
+   --skip file         skip making a hash of the named file (multiple allowed)
+   --skip-regex regex  skip making hashes of filenames that match the regex (multiple allowed)
+   -v                  increase verbosity
+   -q                  run quietly
+   --dry-run           do not execute command
+   --force             force execute command
 
 See the README for examples
 
@@ -47,7 +47,7 @@ def exit_error errval = 1
 end
 
 def parse_args(args)
-  options = { :skip => [], :filter => [] }
+  options = { :skip => [], :skip_regex => [] }
 
   consume = lambda { |args|
     return args if File.exist?(args[0])
@@ -64,8 +64,8 @@ def parse_args(args)
       when '--skip-exe'
         options[:skip_exe] = true
         consume.call(args[1..-1])
-      when '--filter'
-        options[:filter] << args[1]
+      when '--skip-regex'
+        options[:skip_regex] << args[1]
         consume.call(args[2..-1])
       when '-h', '--help'
         print USAGE
@@ -107,7 +107,7 @@ executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
 file_list = OnceOnly::Check::get_file_list(args)
-options[:filter].each { |regex|
+options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }
 file_list -= options[:skip]
