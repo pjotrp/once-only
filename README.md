@@ -2,11 +2,13 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
+Relax with PBS!
+
 Once-only makes a shell script run only once if the inputs don't change (in a
 functional style!). This is very useful when running a range of jobs on a
 compute cluster or GRID. It may even be useful in the context of webservices.
 Once-only makes me much more relaxed running large jobs on compute clusters! If
-I make a mistake I don't need to rerun everything again!
+I make a mistake I don't need to rerun everything again.
 
 Instead of running a tool or script directly, such as
 
@@ -68,8 +70,6 @@ grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS
 
 Once-only is inspired by the Lisp once-only function, which wraps another function and calculates a result only once, based on the same inputs. It is also inspired by the NixOS software
 deployment system, which guarantees packages are uniquely deployed, based on the source code inputs and the configuration at compile time.
-
-Relax!
 
 ## Installation
 
