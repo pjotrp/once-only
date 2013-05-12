@@ -142,7 +142,7 @@ once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa -out
 For a full range of glob patterns, see this [page](http://ruby.about.com/od/beginningruby/a/dir2.htm).
 
 Sometimes you want to include input files that are not on the command line for generating the hash. Maybe some default input file name is being picked up, or it is defined in a 
-configuration file. In that case use the --include options.
+configuration file. In that case use the --include/--in options.
 
 Another once-only command line option is to change directory before executing the script
 

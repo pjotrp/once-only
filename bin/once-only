@@ -12,12 +12,12 @@ Usage:
 
    -d path             change to directory before executing
    --pbs [opts]        convert to PBS command with optional options
+   --skip|--out file   skip making a checksum of the named file (multiple allowed)
    --skip-exe          skip making a checksum of the executable command/script
    --skip-cli          skip making a checksum of full command line
-   --skip file         skip making a checksum of the named file (multiple allowed)
    --skip-regex regex  skip making checksumes of filenames that match the regex (multiple allowed)
    --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
-   --include file      include input filename for making the checksumes
+   --include|--in file include input filename for making the checksumes
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -62,13 +62,12 @@ def parse_args(args)
       when '--pbs'
         if args[1] =~ /\s+/ # optional argument
           options[:pbs] = args[1]
-          p 'HERE',options
           consume.call(args[2..-1])
         else
           options[:pbs] = "''"
           consume.call(args[1..-1])
         end
-      when '--skip'
+      when '--skip','--out'
         options[:skip] << args[1]
         consume.call(args[2..-1])
       when '--skip-exe'
