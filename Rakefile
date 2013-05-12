@@ -17,8 +17,9 @@ Jeweler::Tasks.new do |gem|
   gem.name = "once-only"
   gem.homepage = "http://github.com/pjotrp/once-only"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Run commands once only if inputs do not change}
+  gem.description = %Q{Run programs and scripts once only. Especially
+  useful for PBS and GRID computing}
   gem.email = "pjotr.public01@thebird.nl"
   gem.authors = ["Pjotr Prins"]
   # dependencies defined in Gemfile
@@ -39,7 +40,6 @@ end
 require 'cucumber/rake/task'
 Cucumber::Rake::Task.new do |features|
 end
-
 
 task :default => [:cucumber]
 
