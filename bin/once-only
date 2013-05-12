@@ -12,12 +12,12 @@ Usage:
 
    -d path             change to directory before executing
    --pbs [opts]        convert to PBS command with optional options
-   --skip-exe          skip making a hash of the executable command/script
-   --skip-cli          skip making a hash of full command line
-   --skip file         skip making a hash of the named file (multiple allowed)
-   --skip-regex regex  skip making hashes of filenames that match the regex (multiple allowed)
-   --skip-glob regex   skip making hashes of filenames that match the glob (multiple allowed)
-   --include file      include input filename for making the hashes
+   --skip-exe          skip making a checksum of the executable command/script
+   --skip-cli          skip making a checksum of full command line
+   --skip file         skip making a checksum of the named file (multiple allowed)
+   --skip-regex regex  skip making checksumes of filenames that match the regex (multiple allowed)
+   --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
+   --include file      include input filename for making the checksumes
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -133,7 +133,7 @@ once_only_command = once_only_args.join(' ')
 
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
-command_sha1 = OnceOnly::Check::calc_hash(command_sorted)
+command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)
 
 # change dir
 if options[:dir]

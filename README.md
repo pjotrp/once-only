@@ -11,8 +11,9 @@ Relax with PBS!
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
 jobs on a compute cluster or GRID. It may even be useful in the context of
-webservices.  Once-only makes me much more relaxed running large jobs on
-compute clusters! If I make a mistake I don't need to rerun everything again.
+webservices.  Once-only makes it relaxed to run many jobs on compute clusters!
+A mistake, interruption, or even a parameter tweak, does not mean everything
+has to be run again.
 
 Instead of running a tool or script directly, such as
 
@@ -26,14 +27,17 @@ Prepend once-only
   once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-and once-only will parse the command line for existing files and run a checksum on
-them (here the binary executable 'bowtie' and data files reads/e_coli_1000.fq
-and e_coli.map).  This checksum is saved in a file in the running directory.
-When the checksum file does not exist in the directory the command 'bowtie -t
-e_coli reads/e_coli_1000.fq e_coli.map' is executed.
+and once-only will parse the command line for existing files and run a checksum
+on them (here the binary executable 'bowtie' and data files
+reads/e_coli_1000.fq and e_coli.map).  This checksum, in fact an MD5
+cryptographic hash, or optionally [pfff](https://github.com/pfff/pfff) for
+large files, is a unique identifier (aka fingerprint) and saved in a file in the running
+directory.  When the checksum file does not exist in the directory the command
+'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is executed.
 
-Otherwise execution is skipped. In other words, the checksum file guarantees
-the program is only run once with the same inputs. Really simple! 
+When the file already exists execution is skipped. In other words, the checksum
+file guarantees the program is only run once with the same inputs. Really
+simple! 
 
 In combination with PBS this could be
 
@@ -49,11 +53,11 @@ successfully:
   once-only --pbs '-k oe' bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-The PBS job will be named and identified according to the Hash value.
-This can be used to query PBS and clean up based on queued jobs.
+The PBS job will be named and identified according to the checksum value.  This
+can be used to query PBS and clean up based on queued jobs.
 
 The file once-only writes contains a list of the input files with
-their MD5 finger print values. E.g. on
+their individual checksum values. E.g. on
 
 ```sh
 ./bin/once-only -v ../bioruby-table/bin/bio-table ../bioruby-table/test/data/input/table1.csv 
@@ -93,6 +97,8 @@ gem install once-only
 ### Dependencies
 
 'md5sum' is used for calculating MD5 hash values.
+
+'pfff' is optional and used for calculating pfff hash values on very large files.
 
 When you are using PBS, once-only requires the 'qsub' and 'qstat' commands.
 

@@ -38,7 +38,7 @@ module OnceOnly
       }
     end
 
-    def Check::calc_hash(buf)
+    def Check::calc_checksum(buf)
       if $ruby_sha1
         Sha1::sha1(buf)
       else
@@ -49,7 +49,7 @@ module OnceOnly
     # Create a file name out of the content of checksums
     def Check::make_once_filename checksums, prefix = 'once-only'
       buf = checksums.map { |entry| entry }.join("\n")
-      prefix + '-' + calc_hash(buf) + '.txt'
+      prefix + '-' + calc_checksum(buf) + '.txt'
     end
 
     def Check::write_file fn, checksums
