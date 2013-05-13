@@ -7,13 +7,17 @@ Relax with PBS!
 * Computations only happen once
 * A completed job does not get submitted again to PBS
 * A job already in the queue does not get submitted again to PBS
+* Not worry about submitting serial jobs
 
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
 jobs on a compute cluster or GRID. It may even be useful in the context of
 webservices.  Once-only makes it relaxed to run many jobs on compute clusters!
 A mistake, interruption, or even a parameter tweak, does not mean everything
-has to be run again.
+has to be run again. When running jobs serially you can just batch
+submit them after getting the first results. Any missed jobs can be
+run later again. This way you can get better utilisation of the
+cluster.
 
 Instead of running a tool or script directly, such as
 

@@ -161,6 +161,7 @@ checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
+tag_filename = once_only_filename + '.run'
 $stderr.print "Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
@@ -170,6 +171,7 @@ $stderr.print "Job name ",job_name,"\n" if options[:verbose]
 
 if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
+  OnceOnly::Check::write_file(tag_filename,checksums)
   if options[:pbs]
     # --- Check if job is already queued in PBS
     qstat = `/usr/bin/qstat`
@@ -193,11 +195,13 @@ if options[:force] or not File.exist?(once_only_filename)
     if !options[:dry_run]
       if not system(command)
         OnceOnly::Check::write_file(error_filename,checksums)
+        File.unlink(tag_filename) if File.exist?(tag_filename)
         exit_error($?.exitstatus)
       else
         # --- Success!
         File.unlink(error_filename) if File.exist?(error_filename)
         OnceOnly::Check::write_file(once_only_filename,checksums)
+        File.unlink(tag_filename) if File.exist?(tag_filename)
      end
     end
   end
