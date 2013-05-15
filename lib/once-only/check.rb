@@ -16,7 +16,7 @@ module OnceOnly
 
     def Check::check_files_exist list
       list.each { |fn| 
-        raise "File #{fn} does not exist!" if not File.exist?(fn)
+        Check::exit_error("File #{fn} does not exist!") if not File.exist?(fn)
       }
     end
 
@@ -94,6 +94,12 @@ protected
       (option,filename) = arg.split(/=/)
       return filename if filename and File.exist?(filename)
       nil
+    end
+
+    def Check::exit_error msg, errval=1
+      $stderr.print "\nERROR: ",msg
+      $stderr.print " (once-only returned error #{errval})!\n"
+      exit errval
     end
   end
 

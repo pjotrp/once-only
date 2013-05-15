@@ -67,7 +67,7 @@ def parse_args(args)
           options[:pbs] = "''"
           consume.call(args[1..-1])
         end
-      when '--skip','--out'
+      when '--skip', '--out'
         options[:skip] << args[1]
         consume.call(args[2..-1])
       when '--skip-exe'
@@ -82,7 +82,7 @@ def parse_args(args)
       when '--skip-glob'
         options[:skip_glob] << args[1]
         consume.call(args[2..-1])
-      when '--include','--in'
+      when '--include', '--in'
         options[:include] << args[1]
         consume.call(args[2..-1])
       when '-h', '--help'
