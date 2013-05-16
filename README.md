@@ -101,13 +101,18 @@ With Ruby 1.9 or later on your system you can run
 gem install once-only
 ```
 
+It is also easy to check out the git repository, as once-only has no
+library dependencies.
+
 ### Dependencies
 
 'md5sum' is used for calculating MD5 hash values.
 
-'pfff' is optional and used for calculating pfff hash values on very large files.
+'pfff' is optional and used for calculating pfff hash values on very
+large files (nyi).
 
-When you are using PBS, once-only requires the 'qsub' and 'qstat' commands.
+When you are using the --pbs option, once-only will use the 'qsub' and
+'qstat' commands.
 
 ## Usage (command line)
 
