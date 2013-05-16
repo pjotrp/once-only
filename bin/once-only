@@ -218,14 +218,25 @@ if options[:force] or not File.exist?(once_only_filename)
           clist = args.dup
           file_list.each { | fn | 
             # copy file
-            `cp #{fn} #{copy_dir}` 
+            res = `cp #{fn} #{copy_dir}` 
+            print res if options[:verbose]
             # replace command
             clist = clist.map { |arg| ( fn == arg ? File.basename(arg) : arg ) }
           }
           p clist if options[:debug]
           command_stripped = clist.join(' ')
           Dir.chdir(copy_dir)
-          system(command_stripped)
+          system_result = system(command_stripped)
+          if system_result
+            # Copy results back
+            Dir.glob(copy_dir+'/*').each { |outfn|
+              if clist.index(File.basename(outfn)) > 0
+                res = `cp #{outfn} #{base_dir}`
+                print res if options[:verbose]
+              end
+            }
+          end
+          system_result
         else
           system(command)
         end
