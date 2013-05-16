@@ -11,6 +11,7 @@ once-only runs a command once only when inputs don't change!
 Usage:
 
    -d path             change to directory before executing
+   --copy              copy files to hash dir first
    --pbs [opts]        convert to PBS command with optional options
    --skip|--out file   skip making a checksum of the named file (multiple allowed)
    --skip-exe          skip making a checksum of the executable command/script
@@ -45,7 +46,8 @@ if ARGV.size == 0
   exit 1
 end
 
-def exit_error errval = 1
+def exit_error errval = 1, msg = nil
+  $stderr.print msg if msg
   $stderr.print "\nonce-only returned error #{errval}\n"
   exit errval
 end
@@ -85,6 +87,9 @@ def parse_args(args)
       when '--include', '--in'
         options[:include] << args[1]
         consume.call(args[2..-1])
+      when '--copy' 
+        options[:copy] = true
+        consume.call(args[1..-1])
       when '-h', '--help'
         print USAGE
         exit 1
@@ -140,6 +145,8 @@ if options[:dir]
   Dir.chdir options[:dir] 
 end
 
+base_dir = Dir.pwd
+
 executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
@@ -158,16 +165,23 @@ file_list += options[:include]
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
+# ---- Create filenames
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
 tag_filename = once_only_filename + '.run'
 $stderr.print "Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
+# ---- Create job name
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
 
 job_name = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
 $stderr.print "Job name ",job_name,"\n" if options[:verbose]
+
+# ---- Create copy destination
+if options[:copy]
+  copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
+end
 
 if options[:force] or not File.exist?(once_only_filename)
   $stderr.print "Running #{command}\n" if not options[:quiet]
@@ -193,7 +207,30 @@ if options[:force] or not File.exist?(once_only_filename)
   else
     # --- Run on command line
     if !options[:dry_run]
-      if not system(command)
+      success = 
+        if options[:copy]
+          exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
+          $stderr.print "Running in directory ",copy_dir
+          Dir.mkdir(copy_dir)
+          # --- copy files
+          # p args
+          # p file_list
+          clist = args.dup
+          file_list.each { | fn | 
+            # copy file
+            `cp #{fn} #{copy_dir}` 
+            # replace command
+            clist = clist.map { |arg| ( fn == arg ? File.basename(arg) : arg ) }
+          }
+          p clist if options[:debug]
+          command_stripped = clist.join(' ')
+          Dir.chdir(copy_dir)
+          system(command_stripped)
+        else
+          system(command)
+        end
+      Dir.chdir(base_dir) if options[:copy]
+      if not success
         OnceOnly::Check::write_file(error_filename,checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
         exit_error($?.exitstatus)

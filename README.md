@@ -7,6 +7,9 @@ Relax with PBS!
 * Computations only happen once
 * A completed job does not get submitted again to PBS
 * A job already in the queue does not get submitted again to PBS
+* Guarantee independently executed jobs
+* Automatically use a scratch disk (nyi)
+* Garbage collect jobs (nyi)
 * Not worry about submitting serial jobs
 
 Once-only makes a program or script run only *once*, provided the inputs don't
@@ -179,6 +182,31 @@ once-only --pbs --skip-exe /bin/cat ~/.bashrc
 ```
 
 so once-only won't check the file /bin/cat.
+
+### Guarantee independent jobs with --copy
+
+Because once-only 'knows' the input files we can copy them to a unique
+place before execution. By using the --copy switch a new directory is
+created in the run directory using the hash value of the process.
+Input files are copied and the job is run inside that directory. When
+the job is finished the output file(s) are copied back to the working
+directory. Example
+
+```sh
+once-only --copy /bin/cat ~/.bashrc
+```
+
+Note that files that come with a path will be stripped of their path
+before execution. When files are very large you may want to consider
+the --scratch option.
+
+### Use the scratch disk with --scratch (nyi)
+
+watch this page
+
+### Garbage collect jobs (nyi)
+
+watch this page
 
 ## Project home page
 
