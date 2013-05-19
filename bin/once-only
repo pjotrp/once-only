@@ -211,13 +211,14 @@ if options[:force] or not File.exist?(once_only_filename)
   OnceOnly::Check::write_file(tag_filename,checksums)
   if options[:pbs]
     # --- Submit PBS job
-    pbs_command = 'echo "' +
+    pbs_command = 'echo \'' +
       if options[:stdin]
-        'echo \"' + command + '|'+ once_only_command + '\"'
+        'echo "' + command + '"|'+ once_only_command 
       else
-        once_only_command + ' ' + command + "\"|qsub -N #{job_name} "+options[:pbs]
+        once_only_command + ' ' + command 
       end
-    pbs_command +=  "\"|qsub -N #{job_name} "+options[:pbs]
+    # --- Add PBS part
+    pbs_command +=  "'|qsub -N #{job_name} "+options[:pbs]
     pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
  
     $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
