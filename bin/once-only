@@ -73,6 +73,7 @@ def parse_args(args)
     if not args[0]
       # check stdin
       cmd = $stdin.gets
+      exit_error(1,"Empty command on STDIN") if cmd == nil
       $stderr.print "Command (STDIN): ",cmd,"\n"
       options[:stdin] = true
       return cmd.split(/\s/)
