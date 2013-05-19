@@ -173,6 +173,13 @@ STDIN:
 echo "/bin/cat README.md > tmp.out" | once-only --skip tmp.out
 ```
 
+With PBS the tricky thing here is using more quotes for spacing. At this point it is
+recommended to escape internal quotes, and avoid using single quotes, e.g.
+
+```sh
+echo "/bin/cat \"README.md Version 2\" > tmp.out" | once-only --pbs --skip tmp.out
+```
+
 ### PBS
 
 Once-only has PBS support built-in. It only uses the 'qsub' and 'qstat' commands.
