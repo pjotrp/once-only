@@ -124,7 +124,7 @@ once-only --help
 
 Useful switches can be -v (verbose) and -q (quiet).
 
-If you want to skip scanning the executable file (useful in heterogenous environments, 
+To skip scanning the executable file (useful in heterogenous environments, 
 such as the GRID) use the --skip-exe switch:
 
 ```sh
@@ -163,6 +163,15 @@ once-only -d run001 --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment
 ```
 
 which is useful with PBS and in scripted environments.
+
+### Pipes and redirection
+
+Once-only supports pipes and redirection by stringifying a command on
+STDIN:
+
+```sh
+echo "/bin/cat README.md > tmp.out" | once-only --skip tmp.out
+```
 
 ### PBS
 

@@ -25,7 +25,21 @@ Usage:
    --dry-run           do not execute command
    --force             force execute command
 
-See the README for examples
+Examples:
+
+   Basic use
+
+     once-only /bin/cat README.md
+
+   With PBS
+
+     once-only --pbs /bin/cat README.md
+
+   Using redirects
+
+     echo "/bin/cat README.md > tmp.out" | ./bin/once-only --skip tmp.out
+
+See the README for more examples!
 
 EOB
 
@@ -56,6 +70,12 @@ def parse_args(args)
   options = { :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
 
   consume = lambda { |args|
+    if not args[0]
+      # check stdin
+      cmd = $stdin.gets
+      $stderr.print "Command (STDIN): ",cmd,"\n"
+      return cmd.split(/\s/)
+    end
     return args if File.exist?(args[0]) # reached the executable command
     case args[0]
       when '-d'
