@@ -217,8 +217,8 @@ if options[:force] or not File.exist?(once_only_filename)
       else
         once_only_command + ' ' + command + "\"|qsub -N #{job_name} "+options[:pbs]
       end
-    pbs_command +=  "|qsub -N #{job_name} "+options[:pbs]
-    pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) + '"'
+    pbs_command +=  "\"|qsub -N #{job_name} "+options[:pbs]
+    pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
  
     $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
 
