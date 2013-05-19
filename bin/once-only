@@ -84,7 +84,7 @@ def parse_args(args)
         options[:dir] = File.expand_path(args[1])
         consume.call(args[2..-1])
       when '--pbs'
-        if args[1] =~ /\s+/ # optional argument
+        if args[1] and args[1] =~ /\s+/ # optional PBS argument with spacing
           options[:pbs] = args[1]
           consume.call(args[2..-1])
         else
