@@ -8,9 +8,12 @@ Relax with PBS!
 * A completed job does not get submitted again to PBS
 * A job already in the queue does not get submitted again to PBS
 * Guarantee independently executed jobs
+* Do not worry about submitting serial jobs
+
+and coming
+
 * Automatically use a scratch disk (nyi)
 * Garbage collect jobs (nyi)
-* Not worry about submitting serial jobs
 
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
@@ -34,17 +37,18 @@ Prepend once-only
   once-only bowtie -t e_coli reads/e_coli_1000.fq e_coli.map
 ```
 
-and once-only will parse the command line for existing files and run a checksum
-on them (here the binary executable 'bowtie' and data files
+and once-only will parse the command line for existing files and run a
+checksum on them (here the binary executable 'bowtie' and data files
 reads/e_coli_1000.fq and e_coli.map).  This checksum, in fact an MD5
-cryptographic hash, or optionally [pfff](https://github.com/pfff/pfff) for
-large files, is a unique identifier (aka fingerprint) and saved in a file in the running
-directory.  When the checksum file does not exist in the directory the command
-'bowtie -t e_coli reads/e_coli_1000.fq e_coli.map' is executed.
+cryptographic hash, or optionally [pfff](https://github.com/pfff/pfff)
+for large files, is a unique identifier (aka fingerprint) and saved in
+a file in the running directory.  When the checksum file does not
+exist in the directory the command 'bowtie -t e_coli
+reads/e_coli_1000.fq e_coli.map' is executed.
 
-When the file already exists execution is skipped. In other words, the checksum
-file guarantees the program is only run once with the same inputs. Really
-simple! 
+When the file already exists execution is skipped. In other words, the
+checksum file guarantees the program is only run once with the same
+inputs. Really simple! 
 
 In combination with PBS this could be
 
@@ -153,8 +157,11 @@ once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa -out
 
 For a full range of glob patterns, see this [page](http://ruby.about.com/od/beginningruby/a/dir2.htm).
 
-Sometimes you want to include input files that are not on the command line for generating the hash. Maybe some default input file name is being picked up, or it is defined in a 
-configuration file. In that case use the --include/--in options.
+Sometimes you want to include input files that are not on the command
+line for generating the hash. Maybe some default input file name is
+being picked up, or it is defined in a configuration file. In that
+case use the --include/--in options. Another feature is that if an -in
+file does not exist once-only does not run.
 
 Another once-only command line option is to change directory before executing the script
 
@@ -177,7 +184,7 @@ With PBS the tricky thing here is using more quotes for spacing. At this point i
 recommended to escape internal quotes, and avoid using single quotes, e.g.
 
 ```sh
-echo "/bin/cat \"README.md Version 2\" > tmp.out" | once-only --pbs --skip tmp.out
+echo "/bin/cat \\\"README.md Version 2\\\" > tmp.out" | once-only --pbs --skip tmp.out
 ```
 
 ### PBS
