@@ -18,7 +18,7 @@ Usage:
    --skip-cli          skip making a checksum of full command line
    --skip-regex regex  skip making checksumes of filenames that match the regex (multiple allowed)
    --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
-   --include|--in file include input filename for making the checksumes
+   --include|--in file include input filename for making the checksums (file should exist)
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -106,7 +106,7 @@ def parse_args(args)
       when '--skip-glob'
         options[:skip_glob] << args[1]
         consume.call(args[2..-1])
-      when '--include', '--in'
+      when '--include', '--in', '-in'
         options[:include] << args[1]
         consume.call(args[2..-1])
       when '--copy' 
@@ -184,6 +184,7 @@ file_list -= options[:skip]
 
 OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
+file_list = file_list.uniq
 
 checksums = OnceOnly::Check::calc_file_checksums(file_list)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
