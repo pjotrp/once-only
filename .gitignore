@@ -54,4 +54,4 @@ Gemfile.lock
 *.gemspec
 *.err
 *.run
-
+TAGS
