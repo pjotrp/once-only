@@ -7,6 +7,7 @@ Relax with PBS!
 * Computations only happen once
 * A completed job does not get submitted again to PBS
 * A job already in the queue does not get submitted again to PBS
+* A completed job in the PBS queue does not run again
 * Guarantee independently executed jobs
 * Do not worry about submitting serial jobs
 
@@ -189,7 +190,12 @@ echo "/bin/cat \\\"README.md Version 2\\\" > tmp.out" | once-only --pbs --skip t
 
 ### PBS
 
-Once-only has PBS support built-in. It only uses the 'qsub' and 'qstat' commands.
+Once-only has PBS support built-in. When a job is in the queue, it
+won't get submitted again. When a job has completed, it won't run
+again. Thiss achieved by using once-only before submitting the job
+to the queue, and right before running the job.
+
+Once-only with PBS only uses the 'qsub' and 'qstat' commands. 
 
 Basically use the --pbs option:
 
