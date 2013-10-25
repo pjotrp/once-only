@@ -4,6 +4,30 @@
 
 Relax with PBS!
 
+When running
+
+```bash
+  once-only -d cluster00073 --pbs --in output.best.dnd ~/opt/paml/bin/codeml ~/paml7-8.ctl
+```
+
+This is what you want to see when the job was executed before
+
+```bash
+  Changing dir to cluster00073
+  Running /opt/paml/bin/codeml /home/pprins/paml7-8.ctl
+  **STATUS** Job 00073codemla4817 already completed!
+```
+
+This is what you want to see when a job is already in the queue
+
+```bash
+  Changing dir to cluster00073
+  Running /opt/paml/bin/codeml /home/pprins/paml7-8.ctl
+  **STATUS** Job 00073codemla4817 already in queue!
+```
+
+Features
+
 * Computations only happen once
 * A completed job does not get submitted again to PBS
 * A job already in the queue does not get submitted again to PBS
