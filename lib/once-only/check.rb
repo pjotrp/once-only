@@ -54,8 +54,8 @@ module OnceOnly
       list.map { |fn|
         # First see if fn is in the precalculated list
         ffn = File.expand_path(fn)
-        print ffn
-        if precalc[ffn]  
+        if precalc[ffn]
+          $stderr.print "Precalculated ",fn,"\n"
           rec = precalc[ffn]
           [rec[:type],rec[:hash],ffn]
         else
