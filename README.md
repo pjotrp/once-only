@@ -4,7 +4,10 @@
 
 Relax with PBS! 
 
-No worries about running jobs concurrently (also on multi-core).
+No worries about running jobs concurrently from the command line (also
+on multi-core).  Once-only is inspired by the Lisp once-only function,
+which wraps another function and calculates a result only once, based
+on the same inputs. Simply prepend your command with once-only:
 
 When running
 
@@ -12,7 +15,7 @@ When running
   once-only -d cluster00073 --pbs --in output.best.dnd ~/opt/paml/bin/codeml ~/paml7-8.ctl
 ```
 
-This is what you want to see when the job was executed before
+This is what you want to see when same the job was executed before
 
 ```bash
   Changing dir to cluster00073
@@ -20,7 +23,7 @@ This is what you want to see when the job was executed before
   **STATUS** Job 00073codemla4817 already completed!
 ```
 
-This is what you want to see when a job is already in the queue
+With PBS, this is what you want to see when a job is already in the queue
 
 ```bash
   Changing dir to cluster00073
@@ -120,12 +123,6 @@ md5sum on the one-only has file, for example
 ```sh
 grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS = "[ \t\n]+" }{ print $2,"",$3 }'|md5sum -c
 ```
-
-Once-only is inspired by the Lisp once-only function, which wraps another
-function and calculates a result only once, based on the same inputs. It is
-also inspired by the NixOS software deployment system, which guarantees
-packages are uniquely deployed, based on the source code inputs and the
-configuration at compile time.
 
 ## Installation
 

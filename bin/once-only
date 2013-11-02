@@ -182,6 +182,7 @@ base_dir = Dir.pwd
 executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
+# Handle the file list
 file_list = OnceOnly::Check::get_file_list(args)
 options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
@@ -202,8 +203,14 @@ checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
-tag_filename = once_only_filename + '.run'
 $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
+
+# ---- The 'lock' file
+tag_filename = once_only_filename + '.run'
+if File.exist(tag_filename)
+  $stderr.print "**STATUS** Job is running '#{original_commands}'!\n" if not options[:quiet]
+  exit 0
+end
 
 # ---- Create job name
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
@@ -216,7 +223,7 @@ if options[:copy]
   copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
 end
 
-if options[:force] or not File.exist?(once_only_filename)
+if options[:force] or not File.exist?(once_only_filename) 
   $stderr.print "Running #{command}\n" if not options[:quiet]
   OnceOnly::Check::write_file(tag_filename,checksums)
   if options[:pbs]
