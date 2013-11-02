@@ -2,7 +2,9 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
-Relax with PBS!
+Relax with PBS! 
+
+No worries about running jobs concurrently (also on multi-core).
 
 When running
 
@@ -29,11 +31,11 @@ This is what you want to see when a job is already in the queue
 Features
 
 * Computations only happen once
-* A completed job does not get submitted again to PBS
+* A completed job does not get submitted again (to PBS)
 * A job already in the queue does not get submitted again to PBS
 * A completed job in the PBS queue does not run again
 * Guarantee independently executed jobs
-* Do not worry about submitting serial jobs
+* Do not worry about submitting serial jobs multiple times
 
 and coming
 
@@ -43,12 +45,18 @@ and coming
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
 jobs on a compute cluster or GRID. It may even be useful in the context of
-webservices.  Once-only makes it relaxed to run many jobs on compute clusters!
-A mistake, interruption, or even a parameter tweak, does not mean everything
-has to be run again. When running jobs serially you can just batch
-submit them after getting the first results. Any missed jobs can be
-run later again. This way you can get better utilisation of the
-cluster.
+webservices.  
+
+Once-only makes it relaxed to run many jobs on compute clusters!  A
+mistake, interruption, or even a parameter tweak, does not mean
+everything has to be run again. When running jobs serially you can
+just batch submit them after getting the first results. Any missed
+jobs can be run later again. This way you can get better utilisation
+of your cores or a cluster. You can even use it as a poor-mans PBS on
+your multi-core machine, or over NFS by firing up scripts
+concurrently.
+
+Examples:
 
 Instead of running a tool or script directly, such as
 

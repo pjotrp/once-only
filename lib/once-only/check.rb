@@ -53,13 +53,13 @@ module OnceOnly
     def Check::calc_file_checksums list, precalc
       list.map { |fn|
         # First see if fn is in the precalculated list
-        ffn = File.expand_path(fn)
-        if precalc[ffn] and File.mtime(ffn) < precalc[ffn][:time]
+        fqn = File.expand_path(fn)
+        if precalc[fqn] and File.mtime(fqn) < precalc[fqn][:time]
           $stderr.print "Precalculated ",fn,"\n"
-          rec = precalc[ffn]
-          [rec[:type],rec[:hash],ffn]
+          rec = precalc[fqn]
+          [rec[:type],rec[:hash],fqn]
         else
-          ['MD5'] + `/usr/bin/md5sum #{fn}`.split  # <--- FIXME: this needs to be ffn
+          ['MD5'] + `/usr/bin/md5sum #{fqn}`.split
         end
       }
     end
