@@ -258,6 +258,18 @@ Note that files that come with a path will be stripped of their path
 before execution. When files are very large you may want to consider
 the --scratch option.
 
+### Precalculated hashes
+
+The --precalc option allows for using precalculated hash values. The
+extension says what hash to use. Example:
+
+```sh
+once-only --precalc hash.md5 /bin/cat ~/.bashrc
+```
+
+Once-only will pick up the values from 'hash.md5' and use those after
+making sure the time stamp of the hash file is most recent.
+
 ### Use the scratch disk with --scratch (nyi)
 
 watch this page

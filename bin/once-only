@@ -19,6 +19,7 @@ Usage:
    --skip-regex regex  skip making checksumes of filenames that match the regex (multiple allowed)
    --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
    --include|--in file include input filename for making the checksums (file should exist)
+   --precalc file      use precalculated Hash values (extension .md5)
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -67,7 +68,7 @@ def exit_error errval = 1, msg = nil
 end
 
 def parse_args(args)
-  options = { :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
+  options = { :precalc => [], :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
 
   consume = lambda { |args|
     if not args[0]
@@ -112,6 +113,10 @@ def parse_args(args)
       when '--copy' 
         options[:copy] = true
         consume.call(args[1..-1])
+      when '--precalc'
+        p args
+        options[:precalc] << args[1]
+        consume.call(args[2..-1])
       when '-h', '--help'
         print USAGE
         exit 1
@@ -158,6 +163,11 @@ once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
 once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
 once_only_command = once_only_args.join(' ')
 
+# --- Fetch the pre-calculated checksums
+precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
+p precalc
+
+# --- Calculate the checksums for the items in the list
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
 command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)

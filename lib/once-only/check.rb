@@ -31,7 +31,23 @@ module OnceOnly
       list.map { |name| ( Dir.glob(glob).index(name) ? nil : name ) }.compact
     end
 
-    # Calculate the checksums for each file in the list
+    # Return a hash of files with their hash type, hash value and check time
+    def Check::precalculated_checksums(files)
+      precalc = {}
+      files.each do | fn |
+        raise "Precalculated hash file should have .md5 extension!" if fn !~ /\.md5$/
+        t = File.mtime(fn)
+        File.open(fn).each { |s|
+          a = s.split
+          precalc[fn] = { type: 'MD5', hash: a[0], file: a[1], time: t }
+        }
+      end
+      precalc
+    end
+
+    # Calculate the checksums for each file in the list and return a list
+    # of array - each row containing the Hash type (MD5), the value and the (relative)
+    # file path.
     def Check::calc_file_checksums list
       list.map { |fn|
         ['MD5'] + `/usr/bin/md5sum #{fn}`.split
