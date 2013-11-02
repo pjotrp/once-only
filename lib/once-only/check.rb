@@ -54,7 +54,7 @@ module OnceOnly
       list.map { |fn|
         # First see if fn is in the precalculated list
         ffn = File.expand_path(fn)
-        if precalc[ffn]
+        if precalc[ffn] and File.mtime(ffn) < precalc[ffn][:time]
           $stderr.print "Precalculated ",fn,"\n"
           rec = precalc[ffn]
           [rec[:type],rec[:hash],ffn]
