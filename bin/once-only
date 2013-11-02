@@ -207,7 +207,7 @@ $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[
 
 # ---- The 'lock' file
 tag_filename = once_only_filename + '.run'
-if File.exist(tag_filename)
+if File.exist?(tag_filename)
   $stderr.print "**STATUS** Job is running '#{original_commands}'!\n" if not options[:quiet]
   exit 0
 end
