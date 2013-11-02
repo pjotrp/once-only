@@ -165,7 +165,6 @@ once_only_command = once_only_args.join(' ')
 
 # --- Fetch the pre-calculated checksums
 precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
-p precalc
 
 # --- Calculate the checksums for the items in the list
 command = args.join(' ')
@@ -196,7 +195,7 @@ OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
 file_list = file_list.uniq
 
-checksums = OnceOnly::Check::calc_file_checksums(file_list)
+checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
 # ---- Create filenames
