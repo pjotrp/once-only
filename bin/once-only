@@ -205,11 +205,18 @@ $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
 $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
-# ---- The 'lock' file
+# ---- The 'run' file is used to prepare for a job
 tag_filename = once_only_filename + '.run'
-if File.exist?(tag_filename)
-  $stderr.print "**STATUS** Job is running '#{original_commands}'!\n" if not options[:quiet]
-  exit 0
+
+# ---- The 'lock' file is used when the job is running
+lock_filename = once_only_filename + '.lock'
+if File.exist?(lock_filename) and not options[:force]
+  $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
+  if File.mtime(lock_filename) < Time.now - 18000
+    $stderr.print "**STATUS ** Lock is stale, retrying to run now\n"
+  else
+    exit 0
+  end
 end
 
 # ---- Create job name
@@ -256,6 +263,7 @@ if options[:force] or not File.exist?(once_only_filename)
   else
     # --- Run on command line
     if !options[:dry_run]
+      File.write(lock_filename, "")
       success = 
         if options[:copy]
           exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
@@ -290,6 +298,7 @@ if options[:force] or not File.exist?(once_only_filename)
           system(command)
         end
       Dir.chdir(base_dir) if options[:copy]
+      File.unlink(lock_filename)
       if not success
         OnceOnly::Check::write_file(error_filename,checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
@@ -299,7 +308,7 @@ if options[:force] or not File.exist?(once_only_filename)
         File.unlink(error_filename) if File.exist?(error_filename)
         OnceOnly::Check::write_file(once_only_filename,checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
-     end
+      end
     end
   end
 else
