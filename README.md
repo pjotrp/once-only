@@ -18,16 +18,18 @@ When running
 This is what you want to see when same the job was executed before
 
 ```bash
-  Changing dir to cluster00073
-  Running /opt/paml/bin/codeml /home/pprins/paml7-8.ctl
   **STATUS** Job 00073codemla4817 already completed!
+```
+
+This is what you see when a job is running
+
+```bash
+  **STATUS** Job 00073codemla4817 is locked!
 ```
 
 With PBS, this is what you want to see when a job is already in the queue
 
 ```bash
-  Changing dir to cluster00073
-  Running /opt/paml/bin/codeml /home/pprins/paml7-8.ctl
   **STATUS** Job 00073codemla4817 already in queue!
 ```
 
@@ -37,6 +39,7 @@ Features
 * A completed job does not get submitted again (to PBS)
 * A job already in the queue does not get submitted again to PBS
 * A completed job in the PBS queue does not run again
+* A running job is locked
 * Guarantee independently executed jobs
 * Do not worry about submitting serial jobs multiple times
 

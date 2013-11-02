@@ -24,6 +24,7 @@ Usage:
    -q                  run quietly
    --debug             give debug information
    --dry-run           do not execute command
+   --ignore-lock       ignore locked files (they expire normally after 5 hours)
    --force             force execute command
 
 Examples:
@@ -132,6 +133,9 @@ def parse_args(args)
       when '--dry-run' 
         options[:dry_run] = true
         consume.call(args[1..-1])
+      when '--ignore-lock' 
+        options[:ignore_lock] = true
+        consume.call(args[1..-1])
       when '--force' 
         options[:force] = true
         consume.call(args[1..-1])
@@ -210,10 +214,10 @@ tag_filename = once_only_filename + '.run'
 
 # ---- The 'lock' file is used when the job is running
 lock_filename = once_only_filename + '.lock'
-if File.exist?(lock_filename) and not options[:force]
+if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
   $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
   if File.mtime(lock_filename) < Time.now - 18000
-    $stderr.print "**STATUS ** Lock is stale, retrying to run now\n"
+    $stderr.print "**STATUS ** Lock is stale, retrying now\n"
   else
     exit 0
   end
