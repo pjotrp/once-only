@@ -293,6 +293,10 @@ how to contribute, see
 
   http://github.com/pjotrp/once-only
 
+See also the design document in 
+
+  http://github.com/pjotrp/once-only/doc/design.md
+
 ## Cite
 
 If you use this software, please cite 
