@@ -263,7 +263,7 @@ if options[:force] or not File.exist?(once_only_filename)
   else
     # --- Run on command line
     if !options[:dry_run]
-      File.write(lock_filename, "")
+      File.open(lock_filename, "w") {}
       success = 
         if options[:copy]
           exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
