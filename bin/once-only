@@ -256,10 +256,12 @@ if options[:force] or not File.exist?(once_only_filename)
     $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
 
     # --- Check if job is already queued in PBS
-    qstat = `/usr/bin/qstat`
-    if qstat =~ /#{job_name}/ and not options[:force] and not options[:ignore_queue]
-      $stderr.print "**STATUS** Job #{job_name} already in queue!\n"
-      exit 0
+    if not options[:ignore_queue]
+      qstat = `/usr/bin/qstat`
+      if qstat =~ /#{job_name}/ 
+        $stderr.print "**STATUS** Job #{job_name} already in queue!\n"
+        exit 0
+      end
     end
 
     if !options[:dry_run]
