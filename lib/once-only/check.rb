@@ -9,6 +9,10 @@ end
 module OnceOnly
     
   module Check
+
+    def Check::which(binary)
+      ENV["PATH"].split(File::PATH_SEPARATOR).find {|p| File.exists?( File.join( p, binary ) ) }
+    end
     # filter out all arguments that reflect existing files
     def Check::get_file_list list
       list.map { |arg| get_existing_filename(arg) }.compact
@@ -50,7 +54,7 @@ module OnceOnly
     # Calculate the checksums for each file in the list and return a list
     # of array - each row containing the Hash type (MD5), the value and the (relative)
     # file path.
-    def Check::calc_file_checksums list, precalc
+    def Check::calc_file_checksums list, precalc, pfff
       list.map { |fn|
         # First see if fn is in the precalculated list
         fqn = File.expand_path(fn)
@@ -59,7 +63,11 @@ module OnceOnly
           rec = precalc[fqn]
           [rec[:type],rec[:hash],fqn]
         else
-          ['MD5'] + `/usr/bin/md5sum #{fqn}`.split
+          if pfff and File.size(fn) > 20_000_000 
+            ['PFFF'] + `#{pfff} #{fqn}`.split
+          else
+            ['MD5'] + `/usr/bin/md5sum #{fqn}`.split
+          end
         end
       }
     end

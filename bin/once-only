@@ -20,6 +20,7 @@ Usage:
    --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
    --include|--in file include input filename for making the checksums (file should exist)
    --precalc file      use precalculated Hash values (extension .md5)
+   --pfff              use a Pfff checksum for files larger than 20MB
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
@@ -119,6 +120,9 @@ def parse_args(args)
         p args
         options[:precalc] << args[1]
         consume.call(args[2..-1])
+      when '--pfff' 
+        options[:pfff] = true
+        consume.call(args[1..-1])
       when '-h', '--help'
         print USAGE
         exit 1
@@ -204,7 +208,15 @@ OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
 file_list = file_list.uniq
 
-checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc)
+pfff = if options[:pfff]
+         bin = OnceOnly::Check::which('pfff') 
+         if not bin
+           raise "Pfff binary not found. Please install in the PATH before using the --pfff switch."
+         end
+         bin+'/pfff -k 1'
+       end
+
+checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
 # ---- Create filenames

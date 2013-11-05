@@ -145,8 +145,8 @@ library dependencies.
 
 'md5sum' is used for calculating MD5 hash values.
 
-'pfff' is optional and used for calculating pfff hash values on very
-large files (nyi).
+'pfff' probablistic finger printing is optional and used for
+calculating pfff hash values on large files.
 
 When you are using the --pbs option, once-only will use the 'qsub' and
 'qstat' commands.
