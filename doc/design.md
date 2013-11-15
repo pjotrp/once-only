@@ -34,6 +34,18 @@ When the lock exists and is older than 6 hours it is considered stale and ignore
 
 After completing the run, the lock is removed.
 
+# Checking output
+
+If there is a possibility that output files change after running jobs
+it may be an idea to build an explicit list of output files with
+MD5/pfff values.
+
+When a job completes the command line can be parsed again for output
+files (files that appeared) and switches can be added. Basically, in
+addition to the xxxx-SHA.txt file we can add xxxx-SHA.out.txt. If it
+exists, use it.
+
 # Running
+
 
 
