@@ -194,8 +194,10 @@ base_dir = Dir.pwd
 executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
-# Handle the file list
+# filter all arguments that reflect existing files
 file_list = OnceOnly::Check::get_file_list(args)
+
+# remove filenames that ought to be skipped
 options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }

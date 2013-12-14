@@ -13,7 +13,7 @@ module OnceOnly
     def Check::which(binary)
       ENV["PATH"].split(File::PATH_SEPARATOR).find {|p| File.exists?( File.join( p, binary ) ) }
     end
-    # filter out all arguments that reflect existing files
+    # filter all arguments that reflect existing files
     def Check::get_file_list list
       list.map { |arg| get_existing_filename(arg) }.compact
     end
