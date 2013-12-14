@@ -234,10 +234,14 @@ tag_filename = once_only_filename + '.run'
 lock_filename = once_only_filename + '.lock'
 if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
   $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
-  if File.mtime(lock_filename) < Time.now - 18000
-    $stderr.print "**STATUS ** Lock is stale, retrying now\n"
-  else
-    exit 0
+  # ----- Sleep for 30 seconds and try again
+  sleep(30)
+  if File.exist?(lock_filename)
+    if File.mtime(lock_filename) < Time.now - 18000
+      $stderr.print "**STATUS ** Lock is stale, retrying now\n"
+    else
+      exit 0
+    end
   end
 end
 
