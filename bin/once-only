@@ -158,6 +158,8 @@ end
 
 args,options = parse_args(ARGV)
 
+raise "Do not use skip glob and regex at the same time" if options[:skip_glob].size>0 and options[:skip_regex].size>0
+
 # ---- Put quotes around regexs and globs 
 once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV[0..ARGV.size-args.size-1] ))
 
@@ -198,15 +200,17 @@ args = args[1..-1] if options[:skip_exe]
 
 # filter all arguments that reflect existing files
 file_list = OnceOnly::Check::get_file_list(args)
+skip_list = []
 
 # remove (output) filenames that ought to be skipped
 options[:skip_regex].each { |regex|
-  file_list = OnceOnly::Check::filter_file_list(file_list,regex)
+  file_list,skip_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }
 options[:skip_glob].each { |glob|
-  file_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
+  file_list,skip_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
 }
-file_list -= options[:skip] 
+skip_list += options[:skip]
+file_list -= skip_list
 
 # check for explicitly included filed (--include)
 OnceOnly::Check::check_files_exist(options[:include])
@@ -223,12 +227,12 @@ pfff = if options[:pfff]
        end
 
 # ---- Now calculate the checksums for the input files (list)
-checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
-checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
+in_checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
+in_checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
 # ---- Create the filename(s) by calculating the SHA from the input
 #      with .txt extension
-once_only_filename = OnceOnly::Check::make_once_only_filename(checksums,File.basename(executable))
+once_only_filename = OnceOnly::Check::make_once_only_filename(in_checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
 $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
@@ -265,7 +269,7 @@ end
 
 if options[:force] or not File.exist?(once_only_filename) 
   $stderr.print "Running #{command}\n" if not options[:quiet]
-  OnceOnly::Check::write_file(tag_filename,checksums)
+  OnceOnly::Check::write_file(tag_filename,in_checksums)
   if options[:pbs]
     # --- Submit PBS job
     pbs_command = 'echo \'' +
@@ -291,7 +295,7 @@ if options[:force] or not File.exist?(once_only_filename)
 
     if !options[:dry_run]
       if not system(pbs_command) 
-        OnceOnly::Check::write_file(error_filename,checksums)
+        OnceOnly::Check::write_file(error_filename,in_checksums)
         exit_error($?.exitstatus)
       end
     end
@@ -335,19 +339,21 @@ if options[:force] or not File.exist?(once_only_filename)
       Dir.chdir(base_dir) if options[:copy]
       File.unlink(lock_filename)
       if not success
-        OnceOnly::Check::write_file(error_filename,checksums)
+        OnceOnly::Check::write_file(error_filename,in_checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
         exit_error($?.exitstatus)
       else
         # --- Success!
+        # ---- Now calculate the checksums for the input files (list)
+        out_checksums = OnceOnly::Check::calc_file_checksums(skip_list,precalc,pfff)
         File.unlink(error_filename) if File.exist?(error_filename)
-        OnceOnly::Check::write_file(once_only_filename,checksums)
+        OnceOnly::Check::write_file(once_only_filename,in_checksums,out_checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
       end
     end
   end
 else
-  $stderr.print "**STATUS** Inputs unchanged. No need to rerun '#{original_commands}'!\n" if not options[:quiet]
+  $stderr.print "**STATUS** Inputs unchanged. No need to rerun once-only '#{original_commands}'!\n" if not options[:quiet]
 end
 
 exit 0  # success!

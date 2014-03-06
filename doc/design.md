@@ -38,12 +38,17 @@ After completing the run, the lock is removed.
 
 If there is a possibility that output files change after running jobs
 it may be an idea to build an explicit list of output files with
-MD5/pfff values.
+MD5/pfff values and have those checked. I sometimes remove intermediate files,
+which alarms once-only as it looks for non-existent input files further along in
+the pipeline.
 
-When a job completes the command line can be parsed again for output
-files (files that appeared) and switches can be added. Basically, in
-addition to the xxxx-SHA.txt file we can add xxxx-SHA.out.txt. If it
-exists, use it.
+When a job completes the command line can possibly be parsed again for output
+files (files that appeared) and switches can be added. The --skip lists are
+obvious candidates for output too.  Basically, in addition to the xxxx-SHA.txt
+file we can add xxxx-SHA.out.txt. If it exists, use it.
+
+As it stands the output files can be added to the input file, as long as
+the SHA is calculated over the inputs only.
 
 # Running
 

@@ -24,15 +24,17 @@ module OnceOnly
       }
     end
 
-    # filter out all names accoding to filters
+    # filter out all names according to filters
     def Check::filter_file_list list, regex
-      list.map { |name| ( name =~ /#{regex}/ ? nil : name ) }.compact
+      list2 = list.map { |name| ( name =~ /#{regex}/ ? nil : name ) }.compact
+      return list2, list-list2
     end
 
     # filter out all names accoding to glob (this is not an efficient
     # implementation, as the glob runs for every listed file!)
     def Check::filter_file_list_glob list, glob
-      list.map { |name| ( Dir.glob(glob).index(name) ? nil : name ) }.compact
+      list2 = list.map { |name| ( Dir.glob(glob).index(name) ? nil : name ) }.compact
+      return list2, list-list2
     end
 
     # Return a hash of files with their hash type, hash value and check time
@@ -86,9 +88,11 @@ module OnceOnly
       prefix + '-' + calc_checksum(buf) + '.txt'
     end
 
-    def Check::write_file fn, checksums
+    def Check::write_file fn, in_checksums, out_checksums = []
       File.open(fn,'w') { |f|
-        checksums.each { |items| f.print items[0],"\t",items[1],"\t",items[2],"\n" }
+        in_checksums.each { |items| f.print items[0],"\t",items[1],"\t",items[2],"\n" }
+        f.print "# OUTPUT\n"
+        out_checksums.each { |items| f.print items[0],"\t",items[1],"\t",items[2],"\n" }
       }
     end
    
