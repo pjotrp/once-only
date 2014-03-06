@@ -254,8 +254,8 @@ end
 # ---- Create PBS job ID
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
 
-job_name = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
-$stderr.print "Job name ",job_name,"\n" if options[:verbose]
+job_id = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
+$stderr.print "Job name ",job_id,"\n" if options[:verbose]
 
 # ---- Create copy destination
 if options[:copy]
@@ -274,7 +274,7 @@ if options[:force] or not File.exist?(once_only_filename)
         once_only_command + ' ' + command 
       end
     # --- Add PBS part
-    pbs_command +=  "'|qsub -N #{job_name} "+options[:pbs]
+    pbs_command +=  "'|qsub -N #{job_id} "+options[:pbs]
     pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
  
     $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
@@ -282,8 +282,8 @@ if options[:force] or not File.exist?(once_only_filename)
     # --- Check if job is already queued in PBS
     if not options[:ignore_queue]
       qstat = `/usr/bin/qstat`
-      if qstat =~ /#{job_name}/ 
-        $stderr.print "**STATUS** Job #{job_name} already in queue!\n"
+      if qstat =~ /#{job_id}/ 
+        $stderr.print "**STATUS** Job #{job_id} already in queue!\n"
         exit 0
       end
     end
