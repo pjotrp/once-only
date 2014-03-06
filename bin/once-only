@@ -157,6 +157,8 @@ def parse_args(args)
 end
 
 args,options = parse_args(ARGV)
+
+# ---- Put quotes around regexs and globs 
 once_only_args = OnceOnly::Check.requote([ __FILE__ ] + ( ARGV[0..ARGV.size-args.size-1] ))
 
 if options[:debug]
@@ -170,15 +172,15 @@ if options[:debug]
   p options   
 end
 
-# --- Rewrite once-only args for PBS
+# --- Rewrite once-only args for PBS, dropping --pbs and -d
 once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
 once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
 once_only_command = once_only_args.join(' ')
 
-# --- Fetch the pre-calculated checksums
+# --- Fetch the pre-calculated checksums for large input files (from .md5 file)
 precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
 
-# --- Calculate the checksums for the items in the list
+# --- Calculate checksum over full command line
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
 command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)
@@ -197,7 +199,7 @@ args = args[1..-1] if options[:skip_exe]
 # filter all arguments that reflect existing files
 file_list = OnceOnly::Check::get_file_list(args)
 
-# remove filenames that ought to be skipped
+# remove (output) filenames that ought to be skipped
 options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }
@@ -206,10 +208,12 @@ options[:skip_glob].each { |glob|
 }
 file_list -= options[:skip] 
 
+# check for explicitly included filed (--include)
 OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
 file_list = file_list.uniq
 
+# Check for pfff
 pfff = if options[:pfff]
          bin = OnceOnly::Check::which('pfff') 
          if not bin
@@ -218,10 +222,11 @@ pfff = if options[:pfff]
          bin+'/pfff -k 1'
        end
 
+# ---- Now calculate the checksums for the input files (list)
 checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
-# ---- Create filenames
+# ---- Create the filename(s) by calculating the SHA from the input list
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
@@ -246,7 +251,7 @@ if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lo
   end
 end
 
-# ---- Create job name
+# ---- Create PBS job ID
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
 
 job_name = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
