@@ -41,9 +41,10 @@ Features
 * A completed job does not get submitted again (to PBS)
 * A job already in the queue does not get submitted again to PBS
 * A completed job in the PBS queue does not run again
-* A running job is locked
+* A running job is locked - with expiry
 * Guarantee independently executed jobs
 * Do not worry about submitting serial jobs multiple times
+* When an output file changes (or is removed) once-only runs again
 
 and coming
 
@@ -191,6 +192,10 @@ once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa -out
 ```
 
 For a full range of glob patterns, see this [page](http://ruby.about.com/od/beginningruby/a/dir2.htm).
+
+Using the --skip/--out options also defines the output files that get
+tested on the next invocation of once-only. If an output file goes
+missing or changes, once-only will run again.
 
 Sometimes you want to include input files that are not on the command
 line for generating the hash. Maybe some default input file name is
