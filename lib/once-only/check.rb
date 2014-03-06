@@ -81,7 +81,7 @@ module OnceOnly
     end
 
     # Create a file name out of the content of checksums
-    def Check::make_once_filename checksums, prefix = 'once-only'
+    def Check::make_once_only_filename checksums, prefix = 'once-only'
       buf = checksums.map { |entry| entry }.join("\n")
       prefix + '-' + calc_checksum(buf) + '.txt'
     end

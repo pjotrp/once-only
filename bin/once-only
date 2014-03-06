@@ -226,8 +226,9 @@ pfff = if options[:pfff]
 checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
-# ---- Create the filename(s) by calculating the SHA from the input list
-once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
+# ---- Create the filename(s) by calculating the SHA from the input
+#      with .txt extension
+once_only_filename = OnceOnly::Check::make_once_only_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
 $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
@@ -257,7 +258,7 @@ dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
 job_id = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
 $stderr.print "Job name ",job_id,"\n" if options[:verbose]
 
-# ---- Create copy destination
+# ---- Create copy destination (removing .txt)
 if options[:copy]
   copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
 end
