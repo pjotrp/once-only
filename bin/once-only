@@ -353,7 +353,7 @@ if options[:force] or not File.exist?(once_only_filename)
     end
   end
 else
-  $stderr.print "**STATUS** Inputs unchanged. No need to rerun once-only '#{original_commands}'!\n" if not options[:quiet]
+  $stderr.print "**STATUS** Inputs unchanged. No need to rerun 'once-only #{original_commands}' for #{args.join(' ')}!\n" if not options[:quiet]
 end
 
 exit 0  # success!
