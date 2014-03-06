@@ -9,7 +9,11 @@ end
 module OnceOnly
     
   module Check
-    # filter out all arguments that reflect existing files
+
+    def Check::which(binary)
+      ENV["PATH"].split(File::PATH_SEPARATOR).find {|p| File.exists?( File.join( p, binary ) ) }
+    end
+    # filter all arguments that reflect existing files
     def Check::get_file_list list
       list.map { |arg| get_existing_filename(arg) }.compact
     end
@@ -31,10 +35,40 @@ module OnceOnly
       list.map { |name| ( Dir.glob(glob).index(name) ? nil : name ) }.compact
     end
 
-    # Calculate the checksums for each file in the list
-    def Check::calc_file_checksums list
+    # Return a hash of files with their hash type, hash value and check time
+    def Check::precalculated_checksums(files)
+      precalc = {}
+      files.each do | fn |
+        dir = File.dirname(fn)
+        raise "Precalculated hash file should have .md5 extension!" if fn !~ /\.md5$/
+        t = File.mtime(fn)
+        File.open(fn).each { |s|
+          a = s.split
+          checkfn = File.expand_path(a[1],dir)
+          precalc[checkfn] = { type: 'MD5', hash: a[0], time: t }
+        }
+      end
+      precalc
+    end
+
+    # Calculate the checksums for each file in the list and return a list
+    # of array - each row containing the Hash type (MD5), the value and the (relative)
+    # file path.
+    def Check::calc_file_checksums list, precalc, pfff
       list.map { |fn|
-        ['MD5'] + `/usr/bin/md5sum #{fn}`.split
+        # First see if fn is in the precalculated list
+        fqn = File.expand_path(fn)
+        if precalc[fqn] and File.mtime(fqn) < precalc[fqn][:time]
+          $stderr.print "Precalculated ",fn,"\n"
+          rec = precalc[fqn]
+          [rec[:type],rec[:hash],fqn]
+        else
+          if pfff and File.size(fn) > 20_000_000 
+            ['PFFF'] + `#{pfff} #{fqn}`.split
+          else
+            ['MD5'] + `/usr/bin/md5sum #{fqn}`.split
+          end
+        end
       }
     end
 

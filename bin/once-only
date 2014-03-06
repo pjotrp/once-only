@@ -19,10 +19,14 @@ Usage:
    --skip-regex regex  skip making checksumes of filenames that match the regex (multiple allowed)
    --skip-glob regex   skip making checksumes of filenames that match the glob (multiple allowed)
    --include|--in file include input filename for making the checksums (file should exist)
+   --precalc file      use precalculated Hash values (extension .md5)
+   --pfff              use a Pfff checksum for files larger than 20MB
    -v                  increase verbosity
    -q                  run quietly
    --debug             give debug information
    --dry-run           do not execute command
+   --ignore-lock       ignore locked files (they expire normally after 5 hours)
+   --ignore-queue      do not check the queue
    --force             force execute command
 
 Examples:
@@ -67,7 +71,7 @@ def exit_error errval = 1, msg = nil
 end
 
 def parse_args(args)
-  options = { :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
+  options = { :precalc => [], :skip => [], :skip_regex => [], :skip_glob => [], :include => [] }
 
   consume = lambda { |args|
     if not args[0]
@@ -112,6 +116,13 @@ def parse_args(args)
       when '--copy' 
         options[:copy] = true
         consume.call(args[1..-1])
+      when '--precalc'
+        p args
+        options[:precalc] << args[1]
+        consume.call(args[2..-1])
+      when '--pfff' 
+        options[:pfff] = true
+        consume.call(args[1..-1])
       when '-h', '--help'
         print USAGE
         exit 1
@@ -126,6 +137,12 @@ def parse_args(args)
         consume.call(args[1..-1])
       when '--dry-run' 
         options[:dry_run] = true
+        consume.call(args[1..-1])
+      when '--ignore-lock' 
+        options[:ignore_lock] = true
+        consume.call(args[1..-1])
+      when '--ignore-queue' 
+        options[:ignore_queue] = true
         consume.call(args[1..-1])
       when '--force' 
         options[:force] = true
@@ -158,6 +175,10 @@ once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
 once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
 once_only_command = once_only_args.join(' ')
 
+# --- Fetch the pre-calculated checksums
+precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
+
+# --- Calculate the checksums for the items in the list
 command = args.join(' ')
 command_sorted = args.sort.join(' ')
 command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)
@@ -173,7 +194,10 @@ base_dir = Dir.pwd
 executable = args[0]
 args = args[1..-1] if options[:skip_exe]
 
+# filter all arguments that reflect existing files
 file_list = OnceOnly::Check::get_file_list(args)
+
+# remove filenames that ought to be skipped
 options[:skip_regex].each { |regex|
   file_list = OnceOnly::Check::filter_file_list(file_list,regex)
 }
@@ -186,15 +210,40 @@ OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
 file_list = file_list.uniq
 
-checksums = OnceOnly::Check::calc_file_checksums(file_list)
+pfff = if options[:pfff]
+         bin = OnceOnly::Check::which('pfff') 
+         if not bin
+           raise "Pfff binary not found. Please install in the PATH before using the --pfff switch."
+         end
+         bin+'/pfff -k 1'
+       end
+
+checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
 checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
 # ---- Create filenames
 once_only_filename = OnceOnly::Check::make_once_filename(checksums,File.basename(executable))
 $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
 error_filename = once_only_filename + '.err'
-tag_filename = once_only_filename + '.run'
 $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
+
+# ---- The 'run' file is used to prepare for a job
+tag_filename = once_only_filename + '.run'
+
+# ---- The 'lock' file is used when the job is running
+lock_filename = once_only_filename + '.lock'
+if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
+  $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
+  # ----- Sleep for 30 seconds and try again
+  sleep(30)
+  if File.exist?(lock_filename)
+    if File.mtime(lock_filename) < Time.now - 18000
+      $stderr.print "**STATUS ** Lock is stale, retrying now\n"
+    else
+      exit 0
+    end
+  end
+end
 
 # ---- Create job name
 dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
@@ -207,7 +256,7 @@ if options[:copy]
   copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
 end
 
-if options[:force] or not File.exist?(once_only_filename)
+if options[:force] or not File.exist?(once_only_filename) 
   $stderr.print "Running #{command}\n" if not options[:quiet]
   OnceOnly::Check::write_file(tag_filename,checksums)
   if options[:pbs]
@@ -225,10 +274,12 @@ if options[:force] or not File.exist?(once_only_filename)
     $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
 
     # --- Check if job is already queued in PBS
-    qstat = `/usr/bin/qstat`
-    if qstat =~ /#{job_name}/
-      $stderr.print "**STATUS** Job #{job_name} already in queue!\n"
-      exit 0
+    if not options[:ignore_queue]
+      qstat = `/usr/bin/qstat`
+      if qstat =~ /#{job_name}/ 
+        $stderr.print "**STATUS** Job #{job_name} already in queue!\n"
+        exit 0
+      end
     end
 
     if !options[:dry_run]
@@ -240,6 +291,7 @@ if options[:force] or not File.exist?(once_only_filename)
   else
     # --- Run on command line
     if !options[:dry_run]
+      File.open(lock_filename, "w") {}
       success = 
         if options[:copy]
           exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
@@ -274,6 +326,7 @@ if options[:force] or not File.exist?(once_only_filename)
           system(command)
         end
       Dir.chdir(base_dir) if options[:copy]
+      File.unlink(lock_filename)
       if not success
         OnceOnly::Check::write_file(error_filename,checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
@@ -283,7 +336,7 @@ if options[:force] or not File.exist?(once_only_filename)
         File.unlink(error_filename) if File.exist?(error_filename)
         OnceOnly::Check::write_file(once_only_filename,checksums)
         File.unlink(tag_filename) if File.exist?(tag_filename)
-     end
+      end
     end
   end
 else

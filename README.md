@@ -2,14 +2,46 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
-Relax with PBS!
+Relax with PBS! 
+
+No worries about running jobs concurrently from the command line (also
+on multi-core).  Once-only is inspired by the Lisp once-only function,
+which wraps another function and calculates a result only once, based
+on the same inputs. Simply prepend your command with once-only:
+
+When running
+
+```bash
+  once-only -d cluster00073 --pbs --in output.best.dnd ~/opt/paml/bin/codeml ~/paml7-8.ctl
+```
+
+This is what you want to see when same the job was executed before
+
+```bash
+  **STATUS** Job 00073codemla4817 already completed!
+```
+
+This is what you see when a job is running
+
+```bash
+  **STATUS** Job 00073codemla4817 is locked!
+```
+
+With PBS, this is what you want to see when a job is already in the queue
+
+```bash
+  **STATUS** Job 00073codemla4817 already in queue!
+```
+
+Features
 
 * Computations only happen once
-* A completed job does not get submitted again to PBS
+* A completed job does not get submitted again (to PBS)
 * A job already in the queue does not get submitted again to PBS
 * A completed job in the PBS queue does not run again
+* A running job is locked
 * Guarantee independently executed jobs
-* Do not worry about submitting serial jobs
+* Do not worry about submitting serial jobs multiple times
 
 and coming
 
@@ -19,12 +51,18 @@ and coming
 Once-only makes a program or script run only *once*, provided the inputs don't
 change (in a functional style!). This is very useful when running a range of
 jobs on a compute cluster or GRID. It may even be useful in the context of
-webservices.  Once-only makes it relaxed to run many jobs on compute clusters!
-A mistake, interruption, or even a parameter tweak, does not mean everything
-has to be run again. When running jobs serially you can just batch
-submit them after getting the first results. Any missed jobs can be
-run later again. This way you can get better utilisation of the
-cluster.
+webservices.  
+
+Once-only makes it relaxed to run many jobs on compute clusters!  A
+mistake, interruption, or even a parameter tweak, does not mean
+everything has to be run again. When running jobs serially you can
+just batch submit them after getting the first results. Any missed
+jobs can be run later again. This way you can get better utilisation
+of your cores or a cluster. You can even use it as a poor-mans PBS on
+your multi-core machine, or over NFS by firing up scripts
+concurrently.
+
+Examples:
 
 Instead of running a tool or script directly, such as
 
@@ -89,12 +127,6 @@ md5sum on the one-only has file, for example
 grep MD5 bio-table-ce4ceee0d2ee08ef235662c35b8238ad47fed030.txt |awk 'BEGIN { FS = "[ \t\n]+" }{ print $2,"",$3 }'|md5sum -c
 ```
 
-Once-only is inspired by the Lisp once-only function, which wraps another
-function and calculates a result only once, based on the same inputs. It is
-also inspired by the NixOS software deployment system, which guarantees
-packages are uniquely deployed, based on the source code inputs and the
-configuration at compile time.
-
 ## Installation
 
 Note: once-only is written in Ruby, but you don't need to understand
@@ -113,8 +145,8 @@ library dependencies.
 
 'md5sum' is used for calculating MD5 hash values.
 
-'pfff' is optional and used for calculating pfff hash values on very
-large files (nyi).
+'pfff' probablistic finger printing is optional and used for
+calculating pfff hash values on large files.
 
 When you are using the --pbs option, once-only will use the 'qsub' and
 'qstat' commands.
@@ -234,6 +266,18 @@ Note that files that come with a path will be stripped of their path
 before execution. When files are very large you may want to consider
 the --scratch option.
 
+### Precalculated hashes
+
+The --precalc option allows for using precalculated hash values. The
+extension says what hash to use. Example:
+
+```sh
+once-only --precalc hash.md5 /bin/cat ~/.bashrc
+```
+
+Once-only will pick up the values from 'hash.md5' and use those after
+making sure the time stamp of the hash file is most recent.
+
 ### Use the scratch disk with --scratch (nyi)
 
 watch this page
@@ -248,6 +292,10 @@ Information on the source tree, documentation, examples, issues and
 how to contribute, see
 
   http://github.com/pjotrp/once-only
+
+See also the design document in 
+
+  http://github.com/pjotrp/once-only/doc/design.md
 
 ## Cite
 
