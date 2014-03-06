@@ -74,6 +74,23 @@ module OnceOnly
       }
     end
 
+    def Check::output_missing(filename)
+      in_list, out_list = parse_once_only_metafile(filename)
+      out_list.each do | item |
+        type,value,fqn = item
+        return fqn if !File.exist?(fqn)
+        value2 =
+          if type == 'PFFF'
+            `#{pfff} #{fqn}`.split[0]
+          else
+            `/usr/bin/md5sum #{fqn}`.split[0]
+          end
+        # $stderr.print item,"\n"
+        return fqn if value2 != value 
+      end
+      false
+    end
+
     def Check::calc_checksum(buf)
       if $ruby_sha1
         Sha1::sha1(buf)
@@ -123,7 +140,6 @@ module OnceOnly
       a
     end
 
-
 protected
 
     def Check::get_existing_filename arg
@@ -132,6 +148,23 @@ protected
       (option,filename) = arg.split(/=/)
       return filename if filename and File.exist?(filename)
       nil
+    end
+
+    def Check::parse_once_only_metafile filename
+      in_list = []
+      out_list = []
+      output_section = false
+      File.open(filename).each_line do | s |
+        output_section = true if s =~ /^# OUTPUT/
+        next if s=~ /^#/
+        fields = s.strip.split("\t")
+        if output_section
+          out_list.push fields
+        else
+          in_list.push fields
+        end
+      end
+      return in_list, out_list 
     end
 
     def Check::exit_error msg, errval=1

@@ -267,8 +267,17 @@ if options[:copy]
   copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
 end
 
-if options[:force] or not File.exist?(once_only_filename) 
-  $stderr.print "Running #{command}\n" if not options[:quiet]
+# ---- Check for output
+meta_exists = File.exist?(once_only_filename)
+if meta_exists
+  output_missing = OnceOnly::Check::output_missing(once_only_filename)
+  $stderr.print "**STATUS** Output file was changed: #{output_missing}\n" if output_missing
+else
+  output_missing = true
+end
+
+if options[:force] or output_missing
+  $stderr.print "**STATUS** Running #{command}\n" if not options[:quiet]
   OnceOnly::Check::write_file(tag_filename,in_checksums)
   if options[:pbs]
     # --- Submit PBS job
