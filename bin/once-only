@@ -25,7 +25,7 @@ Usage:
    -q                  run quietly
    --debug             give debug information
    --dry-run           do not execute command
-   --ignore-lock       ignore locked files (they expire normally after 5 hours)
+   --ignore-lock       ignore locked files (locks expire after 5 hours)
    --ignore-queue      do not check the queue
    --force             force execute command
 
@@ -234,12 +234,13 @@ tag_filename = once_only_filename + '.run'
 lock_filename = once_only_filename + '.lock'
 if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
   $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
-  # ----- Sleep for 30 seconds and try again
-  sleep(30)
-  if File.exist?(lock_filename)
-    if File.mtime(lock_filename) < Time.now - 18000
-      $stderr.print "**STATUS ** Lock is stale, retrying now\n"
-    else
+  if File.mtime(lock_filename) < Time.now - 18000
+    $stderr.print "**STATUS ** Lock is stale, retrying now\n"
+  else
+    # ----- Sleep for 30 seconds and try again
+    sleep(30)
+    if File.exist?(lock_filename)
+      $stderr.print "**SKIP** Skipping this job\n"
       exit 0
     end
   end

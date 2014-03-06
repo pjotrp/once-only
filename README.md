@@ -2,12 +2,14 @@
 
 [![Build Status](https://secure.travis-ci.org/pjotrp/once-only.png)](http://travis-ci.org/pjotrp/once-only)
 
-Relax with PBS! 
+Relax with PBS! Relax when running a pipeline.
 
 No worries about running jobs concurrently from the command line (also
 on multi-core).  Once-only is inspired by the Lisp once-only function,
-which wraps another function and calculates a result only once, based
-on the same inputs. Simply prepend your command with once-only:
+which wraps another function and calculates a result only once if the
+inputs have not changed. 
+
+To run once-only on the command line, simply prepend your command with 'once-only':
 
 When running
 
