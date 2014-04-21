@@ -20,7 +20,6 @@ module OnceOnly
 
     def Check::check_files_exist list
       list.each { |fn|
-        p `ls -l #{fn}`
         Check::exit_error("File #{fn} does not exist!") if not File.exist?(fn)
       }
     end
