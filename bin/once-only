@@ -217,6 +217,17 @@ OnceOnly::Check::check_files_exist(options[:include])
 file_list += options[:include]
 file_list = file_list.uniq
 
+# Ok, we have two lists now, the original command line, the vetted file_list
+# and the skip_list. Here we check whether the command line still contains
+# parameters that look like a file, but do not appear in the other lists. A
+# warning is issued.
+(args - file_list - skip_list).each { | arg |
+  if arg =~ /\/?\S+\.\S+/
+    raise "ERROR: <#{arg}> looks like an output filename and is not included in --in, --out or --skip\n"
+
+  end
+}
+
 # Check for pfff
 pfff = if options[:pfff]
          bin = OnceOnly::Check::which('pfff') 

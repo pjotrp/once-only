@@ -173,7 +173,7 @@ once-only --skip-exe muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tr
 
 where only aa.fa is the scanned input file in the first round. To prevent the second run
 of once-only to include the output files (out-alignment.fa, first.ph and tree.ph) you
-can specify them the first round on the command line as
+need to specify them the first round on the command line as
 
 ```sh
 once-only --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tree2 tree.ph
