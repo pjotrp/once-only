@@ -168,7 +168,7 @@ To skip scanning the executable file (useful in heterogenous environments,
 such as the GRID) use the --skip-exe switch:
 
 ```sh
-once-only --skip-exe muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip-exe muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 where only aa.fa is the scanned input file in the first round. To prevent the second run
@@ -176,19 +176,19 @@ of once-only to include the output files (out-alignment.fa, first.ph and tree.ph
 can specify them the first round on the command line as
 
 ```sh
-once-only --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip out-alignment.fa --skip first.ph --skip tree.ph muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 a regular expression on output filenames may be the nicer option
 
 ```sh
-once-only --skip-exe --skip-regex 'out|\.ph$' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip-exe --skip-regex 'out|\.ph$' muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 or if you are more comfortable with shell style pattern matching use
 
 ```sh
-once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa -out out-alignment.fa -tree1 first.ph -tree2 tree.ph
+once-only --skip-exe --skip-glob 'out*' --skip-glob '*.ph' muscle -in aa.fa --out out-alignment.fa -tree1 first.ph -tree2 tree.ph
 ```
 
 For a full range of glob patterns, see this [page](http://ruby.about.com/od/beginningruby/a/dir2.htm).
