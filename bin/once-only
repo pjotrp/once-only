@@ -282,7 +282,7 @@ end
 # ---- Check for output
 meta_exists = File.exist?(once_only_filename)
 if meta_exists
-  output_missing = OnceOnly::Check::output_missing(once_only_filename)
+  output_missing = OnceOnly::Check::output_missing(once_only_filename,pfff)
   $stderr.print "**STATUS** Output file was changed: #{output_missing}\n" if output_missing
 else
   output_missing = true

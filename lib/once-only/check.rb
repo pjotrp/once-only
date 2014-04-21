@@ -74,7 +74,7 @@ module OnceOnly
       }
     end
 
-    def Check::output_missing(filename)
+    def Check::output_missing(filename, pfff)
       in_list, out_list = parse_once_only_metafile(filename)
       out_list.each do | item |
         type,value,fqn = item
