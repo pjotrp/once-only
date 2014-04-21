@@ -2,7 +2,6 @@
 #
 # Once-only  Run applications once with the same inputs
 # Author:: Pjotr Prins
-# Copyright:: 2013
 
 USAGE =<<EOB
 
@@ -55,7 +54,7 @@ $: << File.join(gempath,'lib')
 VERSION_FILENAME=File.join(gempath,'VERSION')
 version = File.new(VERSION_FILENAME).read.chomp
 
-$stderr.print "once-only #{version} (using Ruby #{RUBY_VERSION}) by Pjotr Prins 2013\n"
+$stderr.print "once-only #{version} (using Ruby #{RUBY_VERSION}) by Pjotr Prins 2013,2014\n"
 
 require 'once-only'
 
