@@ -20,7 +20,11 @@ module OnceOnly
 
     def Check::check_files_exist list
       list.each { |fn|
-        Check::exit_error("File #{fn} does not exist!") if not File.exist?(fn)
+        fqn = File.expand_path(fn)
+        if not File.exist?(fqn)
+          p fqn
+          Check::exit_error("File #{fqn} does not exist!") 
+        end
       }
     end
 
