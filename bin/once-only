@@ -222,7 +222,7 @@ file_list = file_list.uniq
 # parameters that look like a file, but do not appear in the other lists. A
 # warning is issued.
 (args - file_list - skip_list).each { | arg |
-  if arg =~ /\/?\S+\.\S+/
+  if arg =~ /\/?\S+\.\W{3,6}/
     raise "ERROR: <#{arg}> looks like an output filename and is not included in --in, --out or --skip\n"
 
   end
