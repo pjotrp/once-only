@@ -258,9 +258,10 @@ if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lo
   if File.mtime(lock_filename) < Time.now - 18000
     $stderr.print "**STATUS ** Lock is stale, retrying now\n"
   else
-    # ----- Sleep for 30 seconds and try again
-    sleep(30)
+    # ----- Sleep for 10 seconds and try again
+    sleep(10)
     if File.exist?(lock_filename)
+      # ----- Exit after waiting 10 seconds
       $stderr.print "**SKIP** Skipping this job\n"
       exit 0
     end
