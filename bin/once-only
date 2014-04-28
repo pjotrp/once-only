@@ -366,6 +366,7 @@ begin # handle exceptions and ctrl-C
         if not success
           OnceOnly::Check::write_file(error_filename,in_checksums)
           File.unlink(tag_filename) if File.exist?(tag_filename)
+          File.unlink(lock_filename) if File.exist?(lock_filename)
           exit_error($?.exitstatus)
         else
           # --- Success!
@@ -383,7 +384,10 @@ begin # handle exceptions and ctrl-C
 
 rescue Interrupt
   $stderr.print "once-only interrupted!\n"
-  File.unlink(lock_filename) if lock_filename
+  if lock_filename
+    File.unlink(lock_filename) 
+    $stderr.print "  removed lock #{lock_filename}\n"
+  end
 end
 
 exit 0  # success!
