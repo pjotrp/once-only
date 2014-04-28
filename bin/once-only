@@ -173,208 +173,217 @@ if options[:debug]
   p options   
 end
 
-# --- Rewrite once-only args for PBS, dropping --pbs and -d
-once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
-once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
-once_only_command = once_only_args.join(' ')
+lock_filename = nil
 
-# --- Fetch the pre-calculated checksums for large input files (from .md5 file)
-precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
+begin # handle exceptions and ctrl-C
 
-# --- Calculate checksum over full command line
-command = args.join(' ')
-command_sorted = args.sort.join(' ')
-command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)
+  # --- Rewrite once-only args for PBS, dropping --pbs and -d
+  once_only_args = OnceOnly::Check.drop_pbs_option(once_only_args)
+  once_only_args = OnceOnly::Check.drop_dir_option(once_only_args)
+  once_only_command = once_only_args.join(' ')
 
-# change dir
-if options[:dir]
-  $stderr.print "Changing dir to ",options[:dir],"\n" if !options[:quiet]
-  Dir.chdir options[:dir] 
-end
+  # --- Fetch the pre-calculated checksums for large input files (from .md5 file)
+  precalc = OnceOnly::Check.precalculated_checksums(options[:precalc])
 
-base_dir = Dir.pwd
+  # --- Calculate checksum over full command line
+  command = args.join(' ')
+  command_sorted = args.sort.join(' ')
+  command_sha1 = OnceOnly::Check::calc_checksum(command_sorted)
 
-executable = args[0]
-args = args[1..-1] if options[:skip_exe]
-
-# filter all arguments that reflect existing files
-file_list = OnceOnly::Check::get_file_list(args)
-skip_list = []
-
-# remove (output) filenames that ought to be skipped
-options[:skip_regex].each { |regex|
-  file_list,skip_list = OnceOnly::Check::filter_file_list(file_list,regex)
-}
-options[:skip_glob].each { |glob|
-  file_list,skip_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
-}
-skip_list += options[:skip]
-file_list -= skip_list
-
-# check for explicitly included filed (--include)
-OnceOnly::Check::check_files_exist(options[:include])
-file_list += options[:include]
-file_list = file_list.uniq
-
-# Ok, we have two lists now, the original command line, the vetted file_list
-# and the skip_list. Here we check whether the command line still contains
-# parameters that look like a file, but do not appear in the other lists. A
-# warning is issued.
-(args - file_list - skip_list).each { | arg |
-  if arg =~ /\/?\S+\.\W{3,6}/
-    raise "ERROR: <#{arg}> looks like an output filename and is not included in --in, --out or --skip\n"
-
+  # change dir
+  if options[:dir]
+    $stderr.print "Changing dir to ",options[:dir],"\n" if !options[:quiet]
+    Dir.chdir options[:dir] 
   end
-}
 
-# Check for pfff
-pfff = if options[:pfff]
-         bin = OnceOnly::Check::which('pfff') 
-         if not bin
-           raise "Pfff binary not found. Please install in the PATH before using the --pfff switch."
-         end
-         bin+'/pfff -k 1'
-       end
+  base_dir = Dir.pwd
 
-# ---- Now calculate the checksums for the input files (list)
-in_checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
-in_checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
+  executable = args[0]
+  args = args[1..-1] if options[:skip_exe]
 
-# ---- Create the filename(s) by calculating the SHA from the input
-#      with .txt extension
-once_only_filename = OnceOnly::Check::make_once_only_filename(in_checksums,File.basename(executable))
-$stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
-error_filename = once_only_filename + '.err'
-$stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
+  # filter all arguments that reflect existing files
+  file_list = OnceOnly::Check::get_file_list(args)
+  skip_list = []
 
-# ---- The 'run' file is used to prepare for a job
-tag_filename = once_only_filename + '.run'
+  # remove (output) filenames that ought to be skipped
+  options[:skip_regex].each { |regex|
+    file_list,skip_list = OnceOnly::Check::filter_file_list(file_list,regex)
+  }
+  options[:skip_glob].each { |glob|
+    file_list,skip_list = OnceOnly::Check::filter_file_list_glob(file_list,glob)
+  }
+  skip_list += options[:skip]
+  file_list -= skip_list
 
-# ---- The 'lock' file is used when the job is running
-lock_filename = once_only_filename + '.lock'
-if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
-  $stderr.print "Checking for lock #{lock_filename}\n" if options[:verbose]
-  $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
-  if File.mtime(lock_filename) < Time.now - 18000
-    $stderr.print "**STATUS ** Lock is stale, retrying now\n"
-  else
-    # ----- Sleep for 10 seconds and try again
-    sleep(10)
-    if File.exist?(lock_filename)
-      # ----- Exit after waiting 10 seconds
-      $stderr.print "**SKIP** Skipping this job\n"
-      exit 0
+  # check for explicitly included filed (--include)
+  OnceOnly::Check::check_files_exist(options[:include])
+  file_list += options[:include]
+  file_list = file_list.uniq
+
+  # Ok, we have two lists now, the original command line, the vetted file_list
+  # and the skip_list. Here we check whether the command line still contains
+  # parameters that look like a file, but do not appear in the other lists. A
+  # warning is issued.
+  (args - file_list - skip_list).each { | arg |
+    if arg =~ /\/?\S+\.\W{3,6}/
+      raise "ERROR: <#{arg}> looks like an output filename and is not included in --in, --out or --skip\n"
+
     end
-  end
-end
+  }
 
-# ---- Create PBS job ID
-dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
+  # Check for pfff
+  pfff = if options[:pfff]
+           bin = OnceOnly::Check::which('pfff') 
+           if not bin
+             raise "Pfff binary not found. Please install in the PATH before using the --pfff switch."
+           end
+           bin+'/pfff -k 1'
+         end
 
-job_id = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
-$stderr.print "Job name ",job_id,"\n" if options[:verbose]
+  # ---- Now calculate the checksums for the input files (list)
+  in_checksums = OnceOnly::Check::calc_file_checksums(file_list,precalc,pfff)
+  in_checksums.push ['SHA1',command_sha1,command_sorted] if not options[:skip_cli]
 
-# ---- Create copy destination (removing .txt)
-if options[:copy]
-  copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
-end
+  # ---- Create the filename(s) by calculating the SHA from the input
+  #      with .txt extension
+  once_only_filename = OnceOnly::Check::make_once_only_filename(in_checksums,File.basename(executable))
+  $stderr.print "Check file name ",once_only_filename,"\n" if options[:verbose]
+  error_filename = once_only_filename + '.err'
+  $stderr.print "**STATUS** Job file exists ",once_only_filename,"!\n" if options[:debug] and File.exist?(once_only_filename)
 
-# ---- Check for output
-meta_exists = File.exist?(once_only_filename)
-if meta_exists
-  output_missing = OnceOnly::Check::output_missing(once_only_filename,pfff)
-  $stderr.print "**STATUS** Output file was changed: #{output_missing}\n" if output_missing
-else
-  output_missing = true
-end
+  # ---- The 'run' file is used to prepare for a job
+  tag_filename = once_only_filename + '.run'
 
-if options[:force] or output_missing
-  $stderr.print "**STATUS** Running #{command}\n" if not options[:quiet]
-  OnceOnly::Check::write_file(tag_filename,in_checksums)
-  if options[:pbs]
-    # --- Submit PBS job
-    pbs_command = 'echo \'' +
-      if options[:stdin]
-        'echo "' + command + '"|'+ once_only_command 
-      else
-        once_only_command + ' ' + command 
-      end
-    # --- Add PBS part
-    pbs_command +=  "'|qsub -N #{job_id} "+options[:pbs]
-    pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
- 
-    $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
-
-    # --- Check if job is already queued in PBS
-    if not options[:ignore_queue]
-      qstat = `/usr/bin/qstat`
-      if qstat =~ /#{job_id}/ 
-        $stderr.print "**STATUS** Job #{job_id} already in queue!\n"
+  # ---- The 'lock' file is used when the job is running
+  lock_filename = once_only_filename + '.lock'
+  if File.exist?(lock_filename) and not options[:force] and not options[:ignore_lock]
+    $stderr.print "Checking for lock #{lock_filename}\n" if options[:verbose]
+    $stderr.print "**STATUS** Job is locked with #{lock_filename} '#{original_commands}'!\n" if not options[:quiet]
+    if File.mtime(lock_filename) < Time.now - 18000
+      $stderr.print "**STATUS ** Lock is stale, retrying now\n"
+    else
+      # ----- Sleep for 10 seconds and try again
+      sleep(10)
+      if File.exist?(lock_filename)
+        # ----- Exit after waiting 10 seconds
+        $stderr.print "**SKIP** Skipping this job\n"
         exit 0
       end
     end
+  end
 
-    if !options[:dry_run]
-      if not system(pbs_command) 
-        OnceOnly::Check::write_file(error_filename,in_checksums)
-        exit_error($?.exitstatus)
+  # ---- Create PBS job ID
+  dirname = File.basename(Dir.pwd).rjust(8,"-") # make sure it is long enough
+
+  job_id = (dirname[-5..-1] + once_only_filename.split(/-/).map{|s|s[0..5]}.join).gsub(/[_-]/,'')[0..15]
+  $stderr.print "Job name ",job_id,"\n" if options[:verbose]
+
+  # ---- Create copy destination (removing .txt)
+  if options[:copy]
+    copy_dir = base_dir + '/' + File.basename(once_only_filename,".txt") 
+  end
+
+  # ---- Check for output
+  meta_exists = File.exist?(once_only_filename)
+  if meta_exists
+    output_missing = OnceOnly::Check::output_missing(once_only_filename,pfff)
+    $stderr.print "**STATUS** Output file was changed: #{output_missing}\n" if output_missing
+  else
+    output_missing = true
+  end
+
+  if options[:force] or output_missing
+    $stderr.print "**STATUS** Running #{command}\n" if not options[:quiet]
+    OnceOnly::Check::write_file(tag_filename,in_checksums)
+    if options[:pbs]
+      # --- Submit PBS job
+      pbs_command = 'echo \'' +
+        if options[:stdin]
+          'echo "' + command + '"|'+ once_only_command 
+        else
+          once_only_command + ' ' + command 
+        end
+      # --- Add PBS part
+      pbs_command +=  "'|qsub -N #{job_id} "+options[:pbs]
+      pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+   
+      $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
+
+      # --- Check if job is already queued in PBS
+      if not options[:ignore_queue]
+        qstat = `/usr/bin/qstat`
+        if qstat =~ /#{job_id}/ 
+          $stderr.print "**STATUS** Job #{job_id} already in queue!\n"
+          exit 0
+        end
+      end
+
+      if !options[:dry_run]
+        if not system(pbs_command) 
+          OnceOnly::Check::write_file(error_filename,in_checksums)
+          exit_error($?.exitstatus)
+        end
+      end
+    else
+      # --- Run on command line
+      if !options[:dry_run]
+        File.open(lock_filename, "w") {}
+        success = 
+          if options[:copy]
+            exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
+            $stderr.print "Running in directory ",copy_dir
+            Dir.mkdir(copy_dir)
+            # --- copy files
+            # p args
+            # p file_list
+            clist = args.dup
+            file_list.each { | fn | 
+              # copy file
+              res = `cp #{fn} #{copy_dir}` 
+              print res if options[:verbose]
+              # replace command
+              clist = clist.map { |arg| ( fn == arg ? File.basename(arg) : arg ) }
+            }
+            p clist if options[:debug]
+            command_stripped = clist.join(' ')
+            Dir.chdir(copy_dir)
+            system_result = system(command_stripped)
+            if system_result
+              # Copy results back
+              Dir.glob(copy_dir+'/*').each { |outfn|
+                if clist.index(File.basename(outfn)) > 0
+                  res = `cp #{outfn} #{base_dir}`
+                  print res if options[:verbose]
+                end
+              }
+            end
+            system_result
+          else
+            system(command)
+          end
+        Dir.chdir(base_dir) if options[:copy]
+        File.unlink(lock_filename)
+        if not success
+          OnceOnly::Check::write_file(error_filename,in_checksums)
+          File.unlink(tag_filename) if File.exist?(tag_filename)
+          exit_error($?.exitstatus)
+        else
+          # --- Success!
+          # ---- Now calculate the checksums for the input files (list)
+          out_checksums = OnceOnly::Check::calc_file_checksums(skip_list,precalc,pfff)
+          File.unlink(error_filename) if File.exist?(error_filename)
+          OnceOnly::Check::write_file(once_only_filename,in_checksums,out_checksums)
+          File.unlink(tag_filename) if File.exist?(tag_filename)
+        end
       end
     end
   else
-    # --- Run on command line
-    if !options[:dry_run]
-      File.open(lock_filename, "w") {}
-      success = 
-        if options[:copy]
-          exit_error(1,"Directory #{copy_dir} already exists!") if File.directory?(copy_dir)
-          $stderr.print "Running in directory ",copy_dir
-          Dir.mkdir(copy_dir)
-          # --- copy files
-          # p args
-          # p file_list
-          clist = args.dup
-          file_list.each { | fn | 
-            # copy file
-            res = `cp #{fn} #{copy_dir}` 
-            print res if options[:verbose]
-            # replace command
-            clist = clist.map { |arg| ( fn == arg ? File.basename(arg) : arg ) }
-          }
-          p clist if options[:debug]
-          command_stripped = clist.join(' ')
-          Dir.chdir(copy_dir)
-          system_result = system(command_stripped)
-          if system_result
-            # Copy results back
-            Dir.glob(copy_dir+'/*').each { |outfn|
-              if clist.index(File.basename(outfn)) > 0
-                res = `cp #{outfn} #{base_dir}`
-                print res if options[:verbose]
-              end
-            }
-          end
-          system_result
-        else
-          system(command)
-        end
-      Dir.chdir(base_dir) if options[:copy]
-      File.unlink(lock_filename)
-      if not success
-        OnceOnly::Check::write_file(error_filename,in_checksums)
-        File.unlink(tag_filename) if File.exist?(tag_filename)
-        exit_error($?.exitstatus)
-      else
-        # --- Success!
-        # ---- Now calculate the checksums for the input files (list)
-        out_checksums = OnceOnly::Check::calc_file_checksums(skip_list,precalc,pfff)
-        File.unlink(error_filename) if File.exist?(error_filename)
-        OnceOnly::Check::write_file(once_only_filename,in_checksums,out_checksums)
-        File.unlink(tag_filename) if File.exist?(tag_filename)
-      end
-    end
+    $stderr.print "**STATUS** Inputs unchanged. No need to rerun 'once-only #{original_commands}' for #{args.join(' ')}!\n" if not options[:quiet]
   end
-else
-  $stderr.print "**STATUS** Inputs unchanged. No need to rerun 'once-only #{original_commands}' for #{args.join(' ')}!\n" if not options[:quiet]
+
+rescue Interrupt
+  $stderr.print "once-only interrupted!\n"
+  File.unlink(lock_filename) if lock_filename
 end
 
 exit 0  # success!
