@@ -321,6 +321,7 @@ begin # handle exceptions and ctrl-C
       if !options[:dry_run]
         if not system(pbs_command) 
           OnceOnly::Check::write_file(error_filename,in_checksums)
+          File.unlink(lock_filename) if File.exist?(lock_filename)
           exit_error($?.exitstatus)
         end
       end
