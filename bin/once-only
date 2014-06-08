@@ -305,13 +305,13 @@ begin # handle exceptions and ctrl-C
         end
       # --- Add PBS part
       pbs_command +=  "'|qsub -N #{job_id} "+options[:pbs]
-      pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+      pbs_command += ' -wd ' + (options[:dir] ? options[:dir] : Dir.pwd) 
    
       $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
 
       # --- Check if job is already queued in PBS
       if not options[:ignore_queue]
-        qstat = `/usr/bin/qstat`
+        qstat = `qstat`
         if qstat =~ /#{job_id}/ 
           $stderr.print "**STATUS** Job #{job_id} already in queue!\n"
           exit 0
