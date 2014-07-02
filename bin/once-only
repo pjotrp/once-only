@@ -324,6 +324,8 @@ begin # handle exceptions and ctrl-C
           File.unlink(lock_filename) if File.exist?(lock_filename)
           exit_error($?.exitstatus)
         end
+      else
+        $stderr.print "**DRY RUN**\n"
       end
     else
       # --- Run on command line
@@ -377,6 +379,8 @@ begin # handle exceptions and ctrl-C
           OnceOnly::Check::write_file(once_only_filename,in_checksums,out_checksums)
           File.unlink(tag_filename) if File.exist?(tag_filename)
         end
+      else
+        $stderr.print "**DRY RUN**\n"
       end
     end
   else
