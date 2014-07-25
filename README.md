@@ -256,6 +256,12 @@ once-only --pbs --skip-exe /bin/cat ~/.bashrc
 
 so once-only won't check the file /bin/cat.
 
+For SGE use
+
+```sh
+once-only --pbs-type SGE --pbs --skip-exe /bin/cat ~/.bashrc
+```
+
 ### Guarantee independent jobs with --copy
 
 Because once-only 'knows' the input files we can copy them to a unique

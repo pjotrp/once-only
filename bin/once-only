@@ -12,6 +12,7 @@ Usage:
    -d path             change to directory before executing
    --copy              copy files to hash dir first
    --pbs [opts]        convert to PBS command with optional options
+   --pbs-type [type]   TORQUE|SGE (default TORQUE)
    --skip|--out file   skip making a checksum of the named file (multiple allowed)
    --skip-exe          skip making a checksum of the executable command/script
    --skip-cli          skip making a checksum of full command line
@@ -94,6 +95,9 @@ def parse_args(args)
           options[:pbs] = "''"
           consume.call(args[1..-1])
         end
+      when '--pbs-type'
+        options[:pbs_type] = args[1].downcase.to_sym
+        consume.call(args[2..-1])
       when '--skip', '--out'
         options[:skip] << args[1]
         consume.call(args[2..-1])
@@ -305,7 +309,11 @@ begin # handle exceptions and ctrl-C
         end
       # --- Add PBS part
       pbs_command +=  "'|qsub -N #{job_id} "+options[:pbs]
-      pbs_command += ' -wd ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+      if options[:pbs_type] == :sge
+        pbs_command += ' -wd ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+      else
+        pbs_command += ' -d ' + (options[:dir] ? options[:dir] : Dir.pwd) 
+      end
    
       $stderr.print("PBS command: ",pbs_command,"\n") if options[:verbose]
 
